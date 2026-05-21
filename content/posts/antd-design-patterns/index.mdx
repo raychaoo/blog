@@ -1,0 +1,224 @@
+---
+title: "Ant Design 实战经验 — 从配置到最佳实践"
+date: "2026-04-28"
+description: "在实际项目中深度使用 Ant Design 的总结，涵盖主题定制、表单优化、Table 性能、国际化等核心话题。"
+tags: ["Ant Design", "React", "前端工程化", "UI组件库"]
+coverImage: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=800&q=80"
+---
+
+## 前言
+
+Ant Design 是国内最流行的 React UI 组件库之一。本文总结在实际项目中深度使用 Ant Design 的经验和最佳实践。
+
+## 主题定制
+
+Ant Design 5.x 引入了基于 CSS-in-JS 的 token 主题系统，定制主题变得前所未有的简单：
+
+```tsx
+import { ConfigProvider } from "antd";
+
+const theme = {
+  token: {
+    colorPrimary: "#6366f1",
+    borderRadius: 8,
+    colorBgContainer: "#ffffff",
+    fontFamily: "DM Sans, sans-serif",
+  },
+  components: {
+    Button: {
+      borderRadiusLG: 6,
+      controlHeightLG: 48,
+    },
+    Card: {
+      paddingLG: 24,
+    },
+  },
+};
+
+export default function App({ children }) {
+  return (
+    <ConfigProvider theme={theme}>
+      {children}
+    </ConfigProvider>
+  );
+}
+```
+
+### 暗色模式适配
+
+配合 `useTheme` 可以动态切换主题：
+
+```tsx
+function ThemeWrapper({ children }) {
+  const [isDark, setIsDark] = useState(false);
+
+  return (
+    <ConfigProvider
+      theme={{
+        algorithm: isDark ? theme.darkAlgorithm : theme.defaultAlgorithm,
+        token: { colorPrimary: "#6366f1" },
+      }}
+    >
+      <Switch onChange={(v) => setIsDark(v)} />
+      {children}
+    </ConfigProvider>
+  );
+}
+```
+
+## Form 表单最佳实践
+
+### 模态框中的 Form
+
+在 Modal 中使用 Form 时，使用 `destroyOnClose` 避免表单状态污染：
+
+```tsx
+function CreateUserModal({ open, onClose }) {
+  const [form] = Form.useForm();
+
+  return (
+    <Modal
+      open={open}
+      onOk={() => form.submit()}
+      onCancel={() => { form.resetFields(); onClose(); }}
+      destroyOnClose
+    >
+      <Form form={form} layout="vertical" onFinish={handleSubmit}>
+        <Form.Item name="name" label="姓名" rules={[{ required: true }]}>
+          <Input />
+        </Form.Item>
+      </Form>
+    </Modal>
+  );
+}
+```
+
+### 表单联动
+
+```tsx
+<Form.Item name="country" label="国家">
+  <Select onChange={() => form.setFieldValue("city", undefined)} />
+</Form.Item>
+
+<Form.Item
+  name="city"
+  label="城市"
+  dependencies={["country"]}
+  rules={[{ required: true, message: "请选择城市" }]}
+>
+  <Select options={cities[form.getFieldValue("country")] || []} />
+</Form.Item>
+```
+
+## Table 性能优化
+
+处理大量数据时，Table 的性能是关键：
+
+| 优化手段 | 说明 | 效果 |
+|---------|------|------|
+| `virtual` | 虚拟滚动（5.x+） | 万级数据流畅渲染 |
+| `scroll={{ y: 480 }}` | 固定高度避免全量渲染 | 大幅减少 DOM 节点 |
+| `onChange` + 分页 | 服务端分页 | 每次只加载当前页 |
+| `shouldCellUpdate` | 控制单元格重渲染 | 减少不必要更新 |
+
+```tsx
+<Table
+  columns={columns}
+  dataSource={data}
+  scroll={{ y: 480, x: 1200 }}
+  pagination={{ pageSize: 50, showSizeChanger: true }}
+  virtual={data.length > 1000}
+  onChange={(pagination) => fetchData(pagination)}
+/>
+```
+
+## 布局模式
+
+### ProLayout
+
+对于中后台项目，ProLayout 提供了开箱即用的布局方案：
+
+```tsx
+import ProLayout from "@ant-design/pro-layout";
+
+export default function AdminLayout() {
+  return (
+    <ProLayout
+      title="后台管理"
+      logo="/logo.svg"
+      layout="mix"
+      splitMenus
+      menuRender={(props, defaultDom) => (
+        <Menu {...props} />
+      )}
+    >
+      <Outlet />
+    </ProLayout>
+  );
+}
+```
+
+### 响应式栅格
+
+```tsx
+<Row gutter={[16, 16]}>
+  <Col xs={24} sm={12} lg={8} xl={6}>
+    <Card>卡片 1</Card>
+  </Col>
+</Row>
+```
+
+## 国际化
+
+```tsx
+import { ConfigProvider } from "antd";
+import zhCN from "antd/locale/zh_CN";
+
+<ConfigProvider locale={zhCN}>
+  <App />
+</ConfigProvider>
+```
+
+## Table + Form 筛选组合
+
+```tsx
+function UserList() {
+  const [params, setParams] = useState({});
+  const { data, loading } = useFetch("/api/users", params);
+
+  return (
+    <Card>
+      <Form layout="inline" onFinish={(v) => setParams(v)}>
+        <Form.Item name="keyword"><Input.Search placeholder="搜索" /></Form.Item>
+        <Form.Item name="status">
+          <Select placeholder="状态" options={statusOptions} allowClear />
+        </Form.Item>
+        <Form.Item>
+          <Space>
+            <Button type="primary" htmlType="submit">查询</Button>
+            <Button htmlType="reset">重置</Button>
+          </Space>
+        </Form.Item>
+      </Form>
+
+      <Table
+        columns={columns}
+        dataSource={data?.list}
+        loading={loading}
+        pagination={{ total: data?.total }}
+      />
+    </Card>
+  );
+}
+```
+
+## 常见坑点
+
+1. **Modal 中 Table 固定列** — 需要给 Modal 设置 `width`，否则固定列计算可能出错
+2. **Select 搜索** — 大数据量用 `showSearch` + `filterOption`，上万条考虑 `virtual`
+3. **DatePicker 值类型** — `dayjs` 对象，不是 `Date`
+4. **Form.Item 嵌套** — 多个组件在同一个 Item 内用 `getValueFromEvent` 处理
+
+## 总结
+
+Ant Design 5.x 的 token 主题系统、Form 的声明式校验、Table 的虚拟滚动等特性，使其成为中后台项目的不二之选。合理利用这些特性可以大幅提升开发效率和用户体验。

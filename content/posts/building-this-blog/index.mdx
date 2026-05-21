@@ -1,0 +1,173 @@
+---
+title: "从零搭建一个现代个人博客 — VibeCoding Blog 技术解析"
+date: "2026-05-20"
+description: "详解这个博客的技术架构、设计思路和实现细节，包括 Next.js 16、Tailwind CSS v4、6 套主题系统、Fuse.js 搜索等。"
+tags: ["Next.js", "React", "TypeScript", "Tailwind CSS", "架构"]
+coverImage: "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=800&q=80"
+---
+
+## 前言
+
+这是一个使用 **Next.js 16** + **React 19** + **TypeScript** + **Tailwind CSS v4** 构建的个人技术博客。本文详细解析它的技术架构和设计决策。
+
+## 技术选型
+
+### Next.js 16 + React 19
+
+选择 Next.js 16 是因为它提供了开箱即用的 **App Router**、**Server Components**、静态生成（SSG）和增量静态再生成（ISR）。配合 React 19，可以获得最新的并发特性和性能优化。
+
+### Tailwind CSS v4
+
+Tailwind CSS v4 是一个重大版本更新，它引入了 CSS-first 的配置方式，不再需要 `tailwind.config.ts`。主题配置直接在 CSS 中通过 `@theme` 指令完成：
+
+```css
+@theme inline {
+  --color-accent: #6366f1;
+  --color-accent-foreground: #ffffff;
+  --font-sans: "DM Sans", system-ui, sans-serif;
+  --font-heading: "Space Grotesk", system-ui, sans-serif;
+}
+```
+
+### 内容管理：unified MDX 管线
+
+项目没有使用 `@next/mdx`，而是通过 `unified` 生态自己搭建 MDX 编译管线：
+
+```typescript
+const processor = unified()
+  .use(remarkParse)
+  .use(remarkGfm)
+  .use(remarkRehype, { allowDangerousHtml: true })
+  .use(rehypeSlug)
+  .use(rehypeAutolinkHeadings, { behavior: "wrap" })
+  .use(rehypePrettyCode, prettyCodeOptions)
+  .use(rehypeStringify);
+```
+
+这条管线支持：
+- GFM（表格、任务列表、脚注）
+- 自动生成锚点 ID（供 TOC 使用）
+- 代码语法高亮（rehype-pretty-code，基于 Shiki）
+- 标题自动链接
+
+## 六套主题系统
+
+博客没有使用 `next-themes`，而是实现了一套自己的多主题系统。
+
+### 架构
+
+每个主题用 `[data-theme="name"]` CSS 属性选择器定义完整的变量集：
+
+```css
+[data-theme="light"] {
+  --bg-color: #ffffff;
+  --fg-color: #1c1917;
+  --color-accent: #6366f1;
+  /* ... */
+}
+
+[data-theme="ocean"] {
+  --bg-color: #0f172a;
+  --fg-color: #e2e8f0;
+  --color-accent: #38bdf8;
+  /* ... */
+}
+```
+
+### 防闪烁
+
+在 `<head>` 中嵌入内联脚本，在 React 水合之前读取 `localStorage` 并设置 `data-theme` 属性，彻底消除主题切换时的闪烁。
+
+### 主题列表
+
+| 主题 | 标识 | 风格 |
+|------|------|------|
+| 亮白 | `light` | 纯白背景，靛蓝 accent |
+| 暗黑 | `dark` | 深色背景，淡靛蓝 |
+| 暖棕 | `sepia` | 羊皮纸质感，铜色 accent |
+| 海洋 | `ocean` | 深蓝海军，青蓝 accent |
+| 薰衣草 | `lavender` | 浅紫背景，紫罗兰 accent |
+| 子夜 | `midnight` | 极暗背景，翠绿 accent |
+
+## 搜索功能
+
+搜索使用 **Fuse.js** 实现客户端模糊搜索。文章构建时生成搜索索引，通过 API 路由暴露，浏览器端加载后进行实时匹配。
+
+搜索弹窗支持键盘导航：
+- `⌘K` / `Ctrl+K` — 打开搜索
+- `↑` `↓` — 选择结果
+- `⏎` — 跳转
+- `ESC` — 关闭
+
+## 设计系统
+
+<img src="https://images.unsplash.com/photo-1561070791-2526d30994b5?w=800&q=80" alt="Design system concept" />
+
+### 配色
+
+采用 6 色 accent 体系，循环应用于标签、装饰元素和渐变：
+- **靛蓝** `#6366f1` — 主色
+- **紫罗兰** `#8b5cf6` — 渐变过渡
+- **粉红** `#ec4899` — 辅助色
+- **青色** `#06b6d4` — 冷色
+- **翠绿** `#10b981` — 绿色
+- **琥珀** `#f59e0b` — 暖色
+
+### 字体
+
+- **标题**: Space Grotesk — 现代几何无衬线，有科技感
+- **正文**: DM Sans — 高可读性，适合长文阅读
+- **代码**: JetBrains Mono — 等宽字体，代码展示
+
+字体使用 `@fontsource` 包自托管，不依赖 Google Fonts API，可在离线环境正常工作。
+
+## 组件架构
+
+```
+src/components/
+├── header.tsx            # 站点导航（Server Component）
+├── search.tsx            # 搜索弹窗（Fuse.js）
+├── theme-provider.tsx    # 多主题上下文
+├── theme-picker.tsx      # 主题选择器
+├── article-card.tsx      # 文章卡片
+├── tag-filter.tsx        # 标签筛选
+├── toc.tsx               # 目录（IntersectionObserver）
+├── progress-bar.tsx      # 阅读进度条
+├── giscus.tsx            # 评论系统
+├── code-enhancer.tsx     # 代码复制按钮
+└── liquid-bg.tsx         # 液态流动背景
+```
+
+### 阅读进度条
+
+固定在页面顶部，基于 `window.scrollY` 计算阅读进度，使用靛蓝→紫罗兰→粉红渐变。
+
+### 目录组件（TOC）
+
+使用 `IntersectionObserver` 监听标题可见性，自动高亮当前阅读位置。桌面端固定在侧边栏，移动端折叠为浮动按钮。
+
+### 代码复制
+
+代码块 hover 时显示复制按钮，点击后显示绿色对勾反馈，2 秒后自动恢复。
+
+## 性能与 SEO
+
+- **静态生成** — 所有文章页面在构建时预渲染
+- **Sitemap** — 自动生成 `sitemap.xml`
+- **RSS** — 自动生成 `rss.xml` 订阅源
+- **Open Graph** — 每篇文章自定义 OG 标签
+- **字体自托管** — 减少外部请求，支持离线
+- **GPU 加速动画** — 液态背景和过渡动画使用 `transform` 和 `opacity`，不影响 Layout Shift
+
+## 总结
+
+这个博客从零搭建，覆盖了现代前端开发的多个方面：
+
+1. Next.js 16 App Router 和 Server Components
+2. Tailwind CSS v4 的 CSS-first 配置方式
+3. CSS 自定义属性实现多主题系统
+4. unified 生态的 MDX 编译管线
+5. 响应式设计和移动端适配
+6. 无障碍访问（键盘导航、焦点状态、屏幕阅读器支持）
+
+项目代码托管在 GitHub，使用 Vercel 部署。

@@ -1,0 +1,65 @@
+---
+title: "Hello World - 我的第一篇博客"
+date: "2025-12-01"
+description: "这是我的个人技术博客的第一篇文章，分享一下搭建这个博客的初衷以及未来的写作计划。"
+tags: ["杂谈", "起步"]
+coverImage: "https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=800&q=80"
+---
+
+## 写在前面
+
+欢迎来到我的个人技术博客！这是我使用 **Next.js** 和 **MDX** 搭建的静态博客站点。
+
+## 为什么搭建这个博客
+
+1. **记录学习过程** — 把学到的知识整理成文章，加深理解
+2. **分享技术心得** — 与更多开发者交流，共同进步
+3. **建立个人品牌** — 通过持续输出建立技术影响力
+
+### 关于技术选型
+
+本站采用了以下技术栈：
+
+- **Next.js 15** — React 全栈框架
+- **TypeScript** — 类型安全
+- **Tailwind CSS** — 原子化 CSS
+- **MDX** — 在 Markdown 中使用 React 组件
+
+## 代码示例
+
+```typescript
+// 一个简单的 React 组件示例
+interface GreetingProps {
+  name: string;
+}
+
+function Greeting({ name }: GreetingProps) {
+  return (
+    <div className="p-4 bg-blue-50 rounded-lg">
+      <h2 className="text-xl font-bold">Hello, {name}! 👋</h2>
+      <p>欢迎来到我的博客。</p>
+    </div>
+  );
+}
+```
+
+## 表格示例
+
+| 特性 | 支持情况 | 备注 |
+|------|----------|------|
+| MDX | ✅ | 完整支持 |
+| 代码高亮 | ✅ | rehype-pretty-code |
+| GFM | ✅ | 表格、任务列表等 |
+| 暗色模式 | ✅ | 三模式切换 |
+
+## 未来的写作计划
+
+接下来我计划写一系列关于以下主题的文章：
+
+1. **Next.js 15 新特性** — App Router、Server Components 深度解析
+2. **TypeScript 高级类型** — 条件类型、模板字面量类型等
+3. **React 19 新功能** — Actions、use() 等新 API
+
+> 技术博客的价值不在于完美，而在于真实的学习过程。
+
+期待与大家在评论区交流！

@@ -1,0 +1,144 @@
+---
+title: "React 19 新特性全面解读 — Actions、use()、新 Hooks 实战"
+date: "2026-05-10"
+description: "React 19 带来了许多激动人心的新特性：Actions、use()、新 Hooks、ref 作为 prop 等。本文结合实际示例详细解析。"
+tags: ["React", "前端", "JavaScript"]
+coverImage: "https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=800&q=80"
+---
+
+## 前言
+
+React 19 是 React 团队的一个重要里程碑。它带来了许多新特性，包括 Actions、`use()` API、全新的 Hooks，以及大量 DX 改进。
+
+## Actions
+
+Actions 是 React 19 最核心的新特性之一。它让表单处理变得更加简洁：
+
+```tsx
+function SubmitButton() {
+  const { pending, action } = useActionState(async (prev: string, formData: FormData) => {
+    const name = formData.get("name");
+    await saveToDb(name);
+    return "提交成功";
+  }, "");
+
+  return (
+    <form action={action}>
+      <input name="name" required />
+      <button disabled={pending}>
+        {pending ? "提交中..." : "提交"}
+      </button>
+    </form>
+  );
+}
+```
+
+React 19 会自动管理 `pending` 状态，无需手动调用 `setState`。
+
+### useActionState
+
+`useActionState` 是 React 19 新增的 Hook，专门用于管理 Action 的状态：
+
+```tsx
+const [state, formAction, isPending] = useActionState(fn, initialState);
+```
+
+- `state` — 当前状态
+- `formAction` — 要执行的 action
+- `isPending` — 是否正在执行
+
+### useFormStatus
+
+`useFormStatus` 让子组件可以访问父表单的状态：
+
+```tsx
+function SubmitButton() {
+  const { pending } = useFormStatus();
+  return <button disabled={pending}>{pending ? "保存中..." : "保存"}</button>;
+}
+```
+
+## use() API — 在 render 中读取资源
+
+`use()` 是 React 19 的一个革命性新 API。它允许在 **render 阶段**直接读取 Promise 或 Context 的值：
+
+```tsx
+function Comments({ commentsPromise }: { commentsPromise: Promise<Comment[]> }) {
+  const comments = use(commentsPromise);
+  return comments.map(comment => <CommentItem key={comment.id} comment={comment} />);
+}
+```
+
+配合 Suspense 使用，可以实现优雅的加载状态：
+
+```tsx
+function ArticlePage({ id }: { id: string }) {
+  const article = use(fetchArticle(id));
+  const comments = use(fetchComments(id));
+
+  return (
+    <article>
+      <h1>{article.title}</h1>
+      <ArticleContent content={article.body} />
+      <Suspense fallback={<CommentsSkeleton />}>
+        <Comments commentsPromise={comments} />
+      </Suspense>
+    </article>
+  );
+}
+```
+
+## ref 作为 prop
+
+在 React 19 中，`ref` 可以直接作为 prop 传递，不再需要用 `forwardRef` 包裹：
+
+```tsx
+// React 19 — 不需要 forwardRef
+function Input({ ref, ...props }: Props) {
+  return <input ref={ref} {...props} />;
+}
+
+// 使用
+function Form() {
+  const inputRef = useRef<HTMLInputElement>(null);
+  return <Input ref={inputRef} placeholder="聚焦我" />;
+}
+```
+
+## 新 Hooks
+
+### useOptimistic
+
+乐观更新 Hook，适用于 UI 先于服务器响应更新的场景：
+
+```tsx
+function LikeButton({ postId, likes }: { postId: string; likes: number }) {
+  const [optimisticLikes, addOptimisticLike] = useOptimistic(
+    likes,
+    (state, _newLike) => state + 1
+  );
+
+  async function handleLike() {
+    addOptimisticLike(null);
+    await api.likePost(postId);
+  }
+
+  return <button onClick={handleLike}>👍 {optimisticLikes}</button>;
+}
+```
+
+## 升级指南
+
+从 React 18 升级到 React 19 需要注意以下几点：
+
+| 变更 | 说明 |
+|------|------|
+| `forwardRef` | ✅ 不再需要，但仍可用 |
+| `useImperativeHandle` | 需要更新类型签名 |
+| `legacyContext` | 已移除，使用 `createContext` |
+| `propTypes` | 已废弃，推荐 TypeScript |
+| `defaultProps` | 函数组件中已废弃 |
+
+## 总结
+
+React 19 的核心主题是 **简化**。Actions 简化了表单处理，`use()` 简化了异步数据读取，ref 作为 prop 简化了组件定义。结合 TypeScript，React 19 提供了更流畅、更安全的开发体验。

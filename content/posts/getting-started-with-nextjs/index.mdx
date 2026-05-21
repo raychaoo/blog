@@ -1,0 +1,82 @@
+---
+title: "Next.js 15 入门指南 - App Router 与 Server Components"
+date: "2025-12-15"
+description: "详细介绍 Next.js 15 的核心概念，包括 App Router、Server Components、数据获取模式等关键特性。"
+tags: ["Next.js", "React", "前端"]
+---
+
+## 前言
+
+Next.js 15 带来了许多激动人心的新特性。本文将带你全面了解其核心概念。
+
+## App Router 架构
+
+Next.js 15 默认使用 **App Router**，它基于 React Server Components 构建。
+
+### 路由约定
+
+```
+app/
+├── page.tsx          # 页面组件
+├── layout.tsx        # 布局组件
+├── loading.tsx       # 加载状态
+├── error.tsx         # 错误处理
+└── posts/
+    └── [slug]/
+        └── page.tsx  # 动态路由
+```
+
+### Server vs Client Components
+
+```typescript
+// Server Component (默认) - 可以直接使用 async/await
+async function PostList() {
+  const posts = await fetchPosts();
+  return (
+    <ul>
+      {posts.map(post => (
+        <li key={post.id}>{post.title}</li>
+      ))}
+    </ul>
+  );
+}
+
+// Client Component - 使用 "use client" 指令
+"use client";
+import { useState } from "react";
+
+function Counter() {
+  const [count, setCount] = useState(0);
+  return <button onClick={() => setCount(c => c + 1)}>{count}</button>;
+}
+```
+
+## 数据获取模式
+
+### 服务器端数据获取
+
+```typescript
+async function getPost(slug: string) {
+  const res = await fetch(`https://api.example.com/posts/${slug}`, {
+    next: { revalidate: 3600 }, // ISR
+  });
+  return res.json();
+}
+```
+
+## 常见问题
+
+1. **什么时候用 Server Component？** — 当组件不需要交互（事件监听、State、Effects）
+2. **什么时候用 Client Component？** — 当组件需要 useState、useEffect、onClick 等浏览器 API
+
+| 特性 | Server Component | Client Component |
+|------|-----------------|-----------------|
+| 数据获取 | ✅ 直接 async | ❌ 需要 useEffect |
+| State | ❌ | ✅ |
+| Effects | ❌ | ✅ |
+| 事件处理 | ❌ | ✅ |
+| Bundle 大小 | 0 KB | 包含依赖 |
+
+## 总结
+
+Next.js 15 的 App Router 代表了 React 全栈开发的未来方向。掌握 Server Components 是高效使用 Next.js 的关键。
