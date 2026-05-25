@@ -5,6 +5,7 @@ import BlogThemeProvider from "@/components/theme-provider";
 import Header from "@/components/header";
 import ProgressBar from "@/components/progress-bar";
 import "../styles/globals.css";
+import { Analytics } from "@vercel/analytics/next";
 
 export const metadata: Metadata = {
   title: {
@@ -37,6 +38,7 @@ export default function RootLayout({
           <Header />
           <main className="flex-1">{children}</main>
         </BlogThemeProvider>
+        <Analytics />
       </body>
     </html>
   );
