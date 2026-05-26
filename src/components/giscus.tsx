@@ -1,25 +1,25 @@
-"use client";
+'use client';
 
-import { useBlogTheme } from "./theme-provider";
-import { useEffect, useState, useRef } from "react";
+import { useBlogTheme } from './theme-provider';
+import { useEffect, useState, useRef } from 'react';
 
-const GISCUS_CONFIG = {
-  src: "https://giscus.app/client.js",
-  dataRepo: "your-username/your-repo",
-  dataRepoId: "your-repo-id",
-  dataCategory: "Announcements",
-  dataCategoryId: "your-category-id",
-  dataMapping: "pathname",
-  dataStrict: "0",
-  dataReactionsEnabled: "1",
-  dataEmitMetadata: "0",
-  dataInputPosition: "top",
-  dataLang: "zh-CN",
-  dataLoading: "lazy",
-  crossorigin: "anonymous",
+const GISCUS_CONFIG: Record<string, string> = {
+  src: 'https://giscus.app/client.js',
+  'data-repo': 'raychaoo/blog',
+  'data-repo-id': 'R_kgDOSjgfXQ',
+  'data-category': 'General',
+  'data-category-id': 'DIC_kwDOSjgfXc4C92Lr',
+  'data-mapping': 'pathname',
+  'data-strict': '0',
+  'data-reactions-enabled': '1',
+  'data-emit-metadata': '0',
+  'data-input-position': 'top',
+  'data-lang': 'zh-CN',
+  'data-loading': 'lazy',
+  crossorigin: 'anonymous',
 };
 
-const LIGHT_THEMES = new Set(["light", "sepia", "lavender"]);
+const LIGHT_THEMES = new Set(['light', 'sepia', 'lavender']);
 
 export default function Giscus() {
   const { theme } = useBlogTheme();
@@ -42,7 +42,7 @@ export default function Giscus() {
           observerRef.current?.disconnect();
         }
       },
-      { rootMargin: "200px" }
+      { rootMargin: '200px' },
     );
 
     if (ref.current) {
@@ -55,31 +55,36 @@ export default function Giscus() {
   useEffect(() => {
     if (!visible) return;
 
-    const existing = document.querySelector(".giscus-frame");
+    const existing = document.querySelector('.giscus-frame');
     if (existing) existing.remove();
 
-    const script = document.createElement("script");
+    const script = document.createElement('script');
     Object.entries(GISCUS_CONFIG).forEach(([key, value]) => {
       script.setAttribute(key, value);
     });
-    script.setAttribute("data-theme", LIGHT_THEMES.has(theme) ? "light" : "dark");
+    script.setAttribute(
+      'data-theme',
+      LIGHT_THEMES.has(theme) ? 'light' : 'dark',
+    );
 
     ref.current?.appendChild(script);
 
     return () => {
-      const existingScript = document.querySelector('script[src="https://giscus.app/client.js"]');
+      const existingScript = document.querySelector(
+        'script[src="https://giscus.app/client.js"]',
+      );
       if (existingScript) existingScript.remove();
     };
   }, [visible, theme]);
 
   if (!mounted) {
-    return <div className="h-20" />;
+    return <div className='h-20' />;
   }
 
   return (
-    <div ref={ref} className="comment-section mt-12 pt-8">
+    <div ref={ref} className='comment-section mt-12 pt-8'>
       {!visible && (
-        <div className="text-center text-muted-fg text-sm py-8">
+        <div className='text-center text-muted-fg text-sm py-8'>
           评论加载中...
         </div>
       )}
