@@ -1,7 +1,7 @@
 'use client';
 
 import { useBlogTheme } from './theme-provider';
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 
 const GISCUS_CONFIG: Record<string, string> = {
   src: 'https://giscus.app/client.js',
@@ -15,46 +15,17 @@ const GISCUS_CONFIG: Record<string, string> = {
   'data-emit-metadata': '0',
   'data-input-position': 'top',
   'data-lang': 'zh-CN',
-  'data-loading': 'lazy',
   crossorigin: 'anonymous',
 };
+
 
 const LIGHT_THEMES = new Set(['light', 'sepia', 'lavender']);
 
 export default function Giscus() {
   const { theme } = useBlogTheme();
-  const [mounted, setMounted] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
-  const [visible, setVisible] = useState(false);
-  const observerRef = useRef<IntersectionObserver | null>(null);
 
   useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  useEffect(() => {
-    if (!mounted) return;
-
-    observerRef.current = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setVisible(true);
-          observerRef.current?.disconnect();
-        }
-      },
-      { rootMargin: '200px' },
-    );
-
-    if (ref.current) {
-      observerRef.current.observe(ref.current);
-    }
-
-    return () => observerRef.current?.disconnect();
-  }, [mounted]);
-
-  useEffect(() => {
-    if (!visible) return;
-
     const existing = document.querySelector('.giscus-frame');
     if (existing) existing.remove();
 
@@ -75,19 +46,7 @@ export default function Giscus() {
       );
       if (existingScript) existingScript.remove();
     };
-  }, [visible, theme]);
+  }, [theme]);
 
-  if (!mounted) {
-    return <div className='h-20' />;
-  }
-
-  return (
-    <div ref={ref} className='comment-section mt-12 pt-8'>
-      {!visible && (
-        <div className='text-center text-muted-fg text-sm py-8'>
-          评论加载中...
-        </div>
-      )}
-    </div>
-  );
+  return <div ref={ref} className='comment-section mt-12 pt-8' />;
 }
