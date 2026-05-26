@@ -6,9 +6,11 @@ interface SidebarProps {
   allPostsCount: number;
   tags: string[];
   startYear: string;
+  githubAvatarUrl: string | null;
+  githubName: string;
 }
 
-export default function Sidebar({ allPostsCount, tags, startYear }: SidebarProps) {
+export default function Sidebar({ allPostsCount, tags, startYear, githubAvatarUrl, githubName }: SidebarProps) {
   const { activeTag, setActiveTag } = useTagContext();
 
   return (
@@ -16,10 +18,18 @@ export default function Sidebar({ allPostsCount, tags, startYear }: SidebarProps
       <div className="space-y-5 lg:sticky lg:top-0 lg:pt-14">
         {/* Author Card */}
         <div className="sidebar-card rounded-lg border border-[var(--card-border)] bg-[var(--card-bg)] p-5">
-          <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[var(--color-accent)] via-[var(--color-accent-violet)] to-[var(--color-accent-pink)] flex items-center justify-center text-white font-heading font-bold text-sm mb-3 shadow-sm">
-            C
-          </div>
-          <h3 className="font-heading font-semibold text-sm mb-1">Chao</h3>
+          {githubAvatarUrl ? (
+            <img
+              src={githubAvatarUrl}
+              alt={githubName}
+              className="w-12 h-12 rounded-full mb-3 shadow-sm"
+            />
+          ) : (
+            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[var(--color-accent)] via-[var(--color-accent-violet)] to-[var(--color-accent-pink)] flex items-center justify-center text-white font-heading font-bold text-sm mb-3 shadow-sm">
+              {githubName.charAt(0).toUpperCase()}
+            </div>
+          )}
+          <h3 className="font-heading font-semibold text-sm mb-1">{githubName}</h3>
           <p className="text-xs text-muted-fg leading-relaxed">
             全栈开发者，专注于 React、Next.js 和 TypeScript。
           </p>
