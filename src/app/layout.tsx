@@ -1,6 +1,4 @@
 import type { Metadata } from "next";
-import "@fontsource/dm-sans";
-import "@fontsource/space-grotesk";
 import BlogThemeProvider from "@/components/theme-provider";
 import Header from "@/components/header";
 import ProgressBar from "@/components/progress-bar";
