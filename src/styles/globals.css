@@ -1,9 +1,43 @@
+/* ===== Alibaba PuHuiTi 3.0 — Self-Hosted ===== */
+
+@font-face {
+  font-family: "Alibaba PuHuiTi";
+  src: url("/fonts/AlibabaPuHuiTi-3-55-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Alibaba PuHuiTi";
+  src: url("/fonts/AlibabaPuHuiTi-3-65-Medium.woff2") format("woff2");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Alibaba PuHuiTi";
+  src: url("/fonts/AlibabaPuHuiTi-3-75-SemiBold.woff2") format("woff2");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Alibaba PuHuiTi";
+  src: url("/fonts/AlibabaPuHuiTi-3-85-Bold.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
 @import "tailwindcss";
 
 @theme inline {
   --color-destructive: #ef4444;
-  --font-sans: "DM Sans", system-ui, sans-serif;
-  --font-heading: "Space Grotesk", system-ui, sans-serif;
+  --font-sans: "Alibaba PuHuiTi", system-ui, sans-serif;
+  --font-heading: "Alibaba PuHuiTi", system-ui, sans-serif;
   --font-mono: "JetBrains Mono", "Fira Code", monospace;
 }
 
@@ -726,4 +760,13 @@ button:focus-visible:not(:focus-visible) {
 
 .prose h2, .prose h3 {
   scroll-margin-top: 5rem;
+}
+
+/* ===== GitHub Contributions Graph ===== */
+
+.github-contributions img {
+  display: block;
+  max-height: 140px;
+  width: 100%;
+  object-fit: contain;
 }

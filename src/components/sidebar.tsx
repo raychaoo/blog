@@ -1,6 +1,8 @@
 "use client";
 
+/* -- useTagContext only needed for tags (commented out below)
 import { useTagContext } from "@/components/tag-context";
+*/
 
 interface SidebarProps {
   allPostsCount: number;
@@ -11,7 +13,9 @@ interface SidebarProps {
 }
 
 export default function Sidebar({ allPostsCount, tags, startYear, githubAvatarUrl, githubName }: SidebarProps) {
+  /* -- useTagContext is only needed for the tags cloud (commented out)
   const { activeTag, setActiveTag } = useTagContext();
+  */
 
   return (
     <aside className="w-full lg:w-64 shrink-0">
@@ -56,7 +60,7 @@ export default function Sidebar({ allPostsCount, tags, startYear, githubAvatarUr
           </div>
         </div>
 
-        {/* Tags Cloud */}
+        {/* Tags Cloud — commented out per layout restructure
         {tags.length > 0 && (
           <div className="sidebar-card rounded-lg border border-[var(--card-border)] bg-[var(--card-bg)] p-5">
             <h4 className="font-heading text-xs font-semibold text-muted-fg uppercase tracking-wider mb-3">
@@ -78,6 +82,7 @@ export default function Sidebar({ allPostsCount, tags, startYear, githubAvatarUr
             </div>
           </div>
         )}
+        */}
 
         {/* About Blog */}
         <div className="sidebar-card rounded-lg border border-[var(--card-border)] bg-[var(--card-bg)] p-5">

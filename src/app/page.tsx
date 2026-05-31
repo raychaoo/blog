@@ -9,9 +9,10 @@ async function getGithubUser() {
     return {
       avatarUrl: data.avatar_url as string,
       name: (data.name as string) || (data.login as string),
+      login: data.login as string,
     };
   } catch {
-    return { avatarUrl: null, name: 'raychaoo' };
+    return { avatarUrl: null, name: 'raychaoo', login: 'raychaoo' };
   }
 }
 
@@ -30,6 +31,7 @@ export default async function HomePage() {
       startYear={startYear}
       githubAvatarUrl={githubUser.avatarUrl}
       githubName={githubUser.name}
+      githubUsername={githubUser.login}
     />
   );
 }
