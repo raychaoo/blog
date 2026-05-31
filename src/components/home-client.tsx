@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import TagProvider from "@/components/tag-context";
 import TagFilterWrapper from "@/components/tag-filter-wrapper";
 import GithubContributions from "@/components/github-contributions";
@@ -15,7 +16,32 @@ interface Props {
   githubUsername: string;
 }
 
+const SCROLL_KEY = "home-scroll";
+
 export default function HomeClient({ tags, posts, allPostsCount, startYear, githubAvatarUrl, githubName, githubUsername }: Props) {
+  // Restore scroll position when returning from an article
+  useEffect(() => {
+    const saved = sessionStorage.getItem(SCROLL_KEY);
+    if (saved) {
+      const y = parseInt(saved, 10);
+      if (!isNaN(y)) {
+        requestAnimationFrame(() => window.scrollTo(0, y));
+      }
+      sessionStorage.removeItem(SCROLL_KEY);
+    }
+  }, []);
+
+  // Save scroll position before navigating to an article
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      const link = (e.target as HTMLElement).closest("a");
+      if (link && link.getAttribute("href")?.startsWith("/posts/")) {
+        sessionStorage.setItem(SCROLL_KEY, String(window.scrollY));
+      }
+    }
+    document.addEventListener("click", handleClick);
+    return () => document.removeEventListener("click", handleClick);
+  }, []);
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
       {/* ── Compact Hero + Profile (was Sidebar content) ── */}
