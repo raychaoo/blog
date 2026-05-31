@@ -11,6 +11,7 @@ export const metadata: Metadata = {
     template: "%s | VibeCoding Blog",
   },
   description: "个人技术博客，分享编程与技术思考",
+  icons: "https://github.com/raychaoo.png",
   openGraph: {
     title: "VibeCoding Blog",
     description: "个人技术博客，分享编程与技术思考",
