@@ -18,7 +18,15 @@ interface Props {
 
 const SCROLL_KEY = "home-scroll";
 
-export default function HomeClient({ tags, posts, allPostsCount, startYear, githubAvatarUrl, githubName, githubUsername }: Props) {
+export default function HomeClient({
+  tags,
+  posts,
+  allPostsCount,
+  startYear,
+  githubAvatarUrl,
+  githubName,
+  githubUsername,
+}: Props) {
   // Restore scroll position when returning from an article
   useEffect(() => {
     const saved = sessionStorage.getItem(SCROLL_KEY);
@@ -64,35 +72,48 @@ export default function HomeClient({ tags, posts, allPostsCount, startYear, gith
               )}
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between gap-3 flex-wrap">
-                  <h3 className="font-heading font-semibold text-sm">{githubName}</h3>
+                  <h3 className="font-heading font-semibold text-sm">
+                    {githubName}
+                  </h3>
                   <div className="flex items-center gap-4 text-center">
                     <div>
-                      <span className="text-sm font-heading font-bold" style={{ color: "var(--color-accent)" }}>{allPostsCount}</span>
-                      <span className="text-xs text-muted-fg ml-1">文章</span>
+                      <span className="text-xs text-muted-fg">文章</span>
+                      <span
+                        className="text-sm font-heading font-bold ml-1"
+                        style={{ color: "var(--color-accent)" }}
+                      >
+                        {allPostsCount}
+                      </span>
                     </div>
                     <div>
-                      <span className="text-sm font-heading font-bold" style={{ color: "var(--color-accent-pink)" }}>{tags.length}</span>
-                      <span className="text-xs text-muted-fg ml-1">标签</span>
+                      <span className="text-xs text-muted-fg">标签</span>
+                      <span
+                        className="text-sm font-heading font-bold ml-1"
+                        style={{ color: "var(--color-accent-pink)" }}
+                      >
+                        {tags.length}
+                      </span>
                     </div>
                     <div>
-                      <span className="text-sm font-heading font-bold" style={{ color: "var(--color-accent-cyan)" }}>{startYear}</span>
-                      <span className="text-xs text-muted-fg ml-1">始于</span>
+                      <span className="text-xs text-muted-fg">始于</span>
+                      <span
+                        className="text-sm font-heading font-bold ml-1"
+                        style={{ color: "var(--color-accent-cyan)" }}
+                      >
+                        {startYear}
+                      </span>
                     </div>
                   </div>
                 </div>
                 <p className="text-xs text-muted-fg leading-relaxed mt-1">
-                  全栈开发者，专注于 React、Next.js 和 TypeScript。
+                  记录技术学习与开发实践，专注于 React、Next.js 和
+                  TypeScript，涵盖前端工程化、React 生态与开发效率等话题。
                 </p>
               </div>
             </div>
 
             {/* GitHub Contribution Graph */}
             <GithubContributions username={githubUsername} />
-
-            {/* About */}
-            <p className="text-xs text-muted-fg leading-relaxed">
-              记录技术学习与开发实践，涵盖前端工程化、React 生态、开发效率等话题。
-            </p>
           </div>
         </div>
       </section>
