@@ -828,3 +828,74 @@ button:focus-visible:not(:focus-visible) {
 .btn-press:active {
   transform: scale(0.96);
 }
+
+/* ── Thoughts timeline (Steps-like) ── */
+.thoughts-timeline {
+  position: relative;
+  padding-left: 1.75rem;
+}
+.thoughts-timeline::before {
+  content: "";
+  position: absolute;
+  left: 7px;
+  top: 10px;
+  bottom: 10px;
+  width: 2px;
+  border-radius: 2px;
+  background: var(--card-border);
+}
+.thoughts-item {
+  position: relative;
+  margin-bottom: 1rem;
+}
+.thoughts-item::before {
+  content: "";
+  position: absolute;
+  left: -1.6rem;
+  top: 9px;
+  width: 12px;
+  height: 12px;
+  border-radius: 9999px;
+  background: var(--color-accent);
+  box-shadow: 0 0 0 4px var(--card-bg);
+}
+.thoughts-item:last-child {
+  margin-bottom: 0;
+}
+.thoughts-card {
+  padding: 0.875rem 1.125rem;
+  border-radius: 0.75rem;
+  border: 1px solid var(--card-border);
+  background: var(--card-bg);
+  transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+.thoughts-card:hover {
+  border-color: var(--color-accent);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px -12px var(--color-accent);
+}
+
+/* wheel-drop entrance: wheel-like snap-in */
+@keyframes wheel-drop {
+  0% {
+    opacity: 0;
+    transform: rotate(-16deg) translateY(-18px);
+  }
+  60% {
+    opacity: 1;
+    transform: rotate(3deg) translateY(2px);
+  }
+  100% {
+    opacity: 1;
+    transform: rotate(0deg) translateY(0);
+  }
+}
+.thoughts-item {
+  animation: wheel-drop 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .thoughts-item {
+    animation: none;
+  }
+}
