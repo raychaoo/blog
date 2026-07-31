@@ -6,6 +6,7 @@ import { compileMdx } from '@/lib/mdx';
 import Toc from '@/components/mdx/toc';
 import DynamicGiscus from '@/components/mdx/giscus-dynamic';
 import CodeEnhancer from '@/components/mdx/code-enhancer';
+import SplitText from '@/components/reactbits/split-text';
 import { Calendar, Clock, ArrowLeft, Tag } from 'lucide-react';
 
 interface PostPageProps {
@@ -52,11 +53,11 @@ export default async function PostPage({ params }: PostPageProps) {
     <div className='page-enter max-w-5xl mx-auto px-4 sm:px-6 py-6 sm:py-10'>
       {/* Back link */}
       <Link
-        href='/'
-        className='inline-flex touch-target items-center gap-1.5 text-xs text-muted-fg hover:text-fg transition-colors mb-6'
+        href='/posts'
+        className='btn-press inline-flex touch-target items-center gap-1.5 text-xs text-muted-fg hover:text-fg transition-colors mb-6'
       >
         <ArrowLeft size={14} />
-        返回首页
+        返回文章
       </Link>
 
       {/* Cover Image */}
@@ -74,10 +75,16 @@ export default async function PostPage({ params }: PostPageProps) {
       <div className='pb-4' style={{ background: 'var(--bg-color)' }}>
         <header className='mb-6 sm:mb-8'>
           <h1 className='font-heading text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight mb-4 leading-tight'>
-            {title}
+            <SplitText
+              text={title}
+              className='font-heading'
+              delay={0.1}
+              from={{ opacity: 0, y: 20 }}
+              to={{ opacity: 1, y: 0 }}
+            />
           </h1>
 
-          <div className='flex flex-wrap items-center gap-3 sm:gap-4 text-xs text-muted-fg'>
+          <div className='flex flex-wrap items-center gap-3 sm:gap-4 text-xs text-muted-fg animate-fade-up'>
             <span className='inline-flex items-center gap-1.5'>
               <Calendar size={14} />
               <time dateTime={date}>
@@ -99,13 +106,12 @@ export default async function PostPage({ params }: PostPageProps) {
                 <span className='inline-flex items-center gap-1.5 flex-wrap'>
                   <Tag size={14} />
                   {tags.map((tag, i) => (
-                    <Link
+                    <span
                       key={tag}
-                      href={`/?tag=${encodeURIComponent(tag)}`}
-                      className={`tag-pill text-[11px] cursor-pointer ${['tag-indigo', 'tag-pink', 'tag-cyan', 'tag-emerald', 'tag-amber', 'tag-violet'][i % 6]}`}
+                      className={`tag-pill text-[11px] ${['tag-indigo', 'tag-pink', 'tag-cyan', 'tag-emerald', 'tag-amber', 'tag-violet'][i % 6]}`}
                     >
                       {tag}
-                    </Link>
+                    </span>
                   ))}
                 </span>
               </>
@@ -126,15 +132,17 @@ export default async function PostPage({ params }: PostPageProps) {
 
           <div className='mt-10 sm:mt-12 pt-6 border-t border-[var(--card-border)]'>
             <Link
-              href='/'
-              className='inline-flex touch-target items-center gap-1.5 text-sm text-fg hover:text-[var(--color-accent)] transition-colors font-medium'
+              href='/posts'
+              className='btn-press inline-flex touch-target items-center gap-1.5 text-sm text-fg hover:text-[var(--color-accent)] transition-colors font-medium'
             >
               <ArrowLeft size={16} />
-              返回首页
+              返回文章
             </Link>
           </div>
 
-          <DynamicGiscus />
+          <div className='animate-fade-up'>
+            <DynamicGiscus />
+          </div>
         </div>
 
         <aside className='hidden lg:block w-56 shrink-0 self-stretch'>
