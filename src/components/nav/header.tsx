@@ -1,6 +1,6 @@
 import Link from "next/link";
-import ThemePicker from "./theme-picker";
-import SearchModal from "./search";
+import ThemePicker from "../theme/theme-picker";
+import SearchModal from "../search/search";
 
 export default function Header() {
   return (

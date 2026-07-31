@@ -1,6 +1,6 @@
 'use client';
 
-import { useBlogTheme } from './theme-provider';
+import { useBlogTheme } from '../theme/theme-provider';
 import { useEffect, useRef } from 'react';
 
 const GISCUS_CONFIG: Record<string, string> = {

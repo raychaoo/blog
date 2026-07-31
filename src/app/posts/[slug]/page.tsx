@@ -3,9 +3,9 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { getPostBySlug, getAllSlugs, estimateReadingTime } from '@/lib/posts';
 import { compileMdx } from '@/lib/mdx';
-import Toc from '@/components/toc';
-import DynamicGiscus from '@/components/giscus-dynamic';
-import CodeEnhancer from '@/components/code-enhancer';
+import Toc from '@/components/mdx/toc';
+import DynamicGiscus from '@/components/mdx/giscus-dynamic';
+import CodeEnhancer from '@/components/mdx/code-enhancer';
 import { Calendar, Clock, ArrowLeft, Tag } from 'lucide-react';
 
 interface PostPageProps {

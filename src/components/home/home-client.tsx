@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import TagProvider from "@/components/tag-context";
 import TagFilterWrapper from "@/components/tag-filter-wrapper";
-import GithubContributions from "@/components/github-contributions";
+import GithubContributions from "./github-contributions";
 import type { PostMeta } from "@/lib/posts";
 
 interface Props {

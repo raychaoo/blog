@@ -1,5 +1,5 @@
 import { getAllPosts, getAllTags } from '@/lib/posts';
-import HomeClient from '@/components/home-client';
+import HomeClient from '@/components/home/home-client';
 
 async function getGithubUser() {
   try {

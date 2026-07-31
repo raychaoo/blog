@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
-import BlogThemeProvider from "@/components/theme-provider";
-import Header from "@/components/header";
-import ProgressBar from "@/components/progress-bar";
+import BlogThemeProvider from "@/components/theme/theme-provider";
+import Header from "@/components/nav/header";
+import ProgressBar from "@/components/mdx/progress-bar";
 import "../styles/globals.css";
 import { Analytics } from "@vercel/analytics/next";
 

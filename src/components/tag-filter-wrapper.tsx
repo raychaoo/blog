@@ -1,6 +1,6 @@
 'use client';
 
-import ArticleCard from '@/components/article-card';
+import ArticleCard from '@/components/posts/article-card';
 import { useTagContext } from '@/components/tag-context';
 import type { PostMeta } from '@/lib/posts';
 import { useMemo } from 'react';
