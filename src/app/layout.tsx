@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import BlogThemeProvider from "@/components/theme/theme-provider";
 import Header from "@/components/nav/header";
 import ProgressBar from "@/components/mdx/progress-bar";
+import Live2dMascot from "@/components/live2d/live2d-mascot";
 import "../styles/globals.css";
 import { Analytics } from "@vercel/analytics/next";
 
@@ -35,6 +36,7 @@ export default function RootLayout({
         <BlogThemeProvider>
           <ProgressBar />
           <Header />
+          <Live2dMascot />
           <main className="flex-1">{children}</main>
         </BlogThemeProvider>
         <Analytics />
