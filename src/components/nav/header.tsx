@@ -1,13 +1,11 @@
 "use client";
 
-import { useContext } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import GooeyNav from "@/components/reactbits/gooey-nav";
 import ThemePicker from "@/components/theme/theme-picker";
 import SearchModal from "@/components/search/search";
-import { ThemeContext } from "@/components/theme/theme-provider";
-import { readAccentColors, type AccentColors } from "@/lib/accent-colors";
+import { useAccentColors } from "@/lib/accent-colors";
 
 const NAV_ITEMS = [
   { label: "首页", href: "/" },
@@ -24,20 +22,7 @@ function getActiveIndex(pathname: string): number {
 
 export default function Header() {
   const pathname = usePathname();
-  // The theme context is null until BlogThemeProvider has mounted (anti-flash
-  // guard). Consume context directly (like ThemePicker) and fall back to
-  // static defaults during SSR/prerender of _not-found, instead of the
-  // throwing useAccentColors() hook.
-  const theme = useContext(ThemeContext)?.theme;
-  const colors: AccentColors =
-    typeof window === "undefined" || !theme
-      ? {
-          accent: "#6366f1",
-          violet: "#8b5cf6",
-          pink: "#ec4899",
-          cyan: "#06b6d4",
-        } as AccentColors
-      : readAccentColors();
+  const colors = useAccentColors();
   const showSearch = pathname.startsWith("/posts") || pathname.startsWith("/thoughts");
 
   return (

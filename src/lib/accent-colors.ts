@@ -1,5 +1,5 @@
-import { useMemo } from "react";
-import { useBlogTheme } from "@/components/theme/theme-provider";
+import { useContext, useMemo } from "react";
+import { ThemeContext } from "@/components/theme/theme-provider";
 
 export interface AccentColors {
   accent: string;
@@ -42,6 +42,6 @@ export function readAccentColors(): AccentColors {
 }
 
 export function useAccentColors(): AccentColors {
-  const { theme } = useBlogTheme();
+  const theme = useContext(ThemeContext)?.theme;
   return useMemo(() => readAccentColors(), [theme]);
 }
