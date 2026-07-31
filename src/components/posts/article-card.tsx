@@ -3,24 +3,25 @@ import type { PostMeta } from "@/lib/posts";
 
 interface ArticleCardProps {
   post: PostMeta;
+  index?: number;
 }
 
-export default function ArticleCard({ post }: ArticleCardProps) {
-  const { title, date, description, tags, coverImage } = post.frontmatter;
+const ACCENTS = [
+  "var(--color-accent)",
+  "var(--color-accent-violet)",
+  "var(--color-accent-pink)",
+  "var(--color-accent-cyan)",
+  "var(--color-accent-emerald)",
+  "var(--color-accent-amber)",
+];
+
+export default function ArticleCard({ post, index = 0 }: ArticleCardProps) {
+  const { title, date, description, tags } = post.frontmatter;
+  const accent = ACCENTS[index % ACCENTS.length];
 
   return (
-    <Link href={`/posts/${post.slug}`}>
-      <article className="article-card">
-        {coverImage && (
-          <div className="cover-image-wrap">
-            <img
-              src={coverImage}
-              alt={title}
-              className="w-full h-40 object-cover"
-              loading="lazy"
-            />
-          </div>
-        )}
+    <Link href={`/posts/${post.slug}`} className="block h-full">
+      <article className="article-card h-full">
         <div className="flex-1 flex flex-col">
           <div className="card-date text-sm mb-2">
             <time dateTime={date}>
@@ -35,14 +36,16 @@ export default function ArticleCard({ post }: ArticleCardProps) {
             {title}
           </h2>
           {description && (
-            <p className="card-desc text-sm leading-relaxed flex-1">
-              {description}
-            </p>
+            <p className="card-desc text-sm leading-relaxed flex-1">{description}</p>
           )}
           {tags && tags.length > 0 && (
             <div className="flex flex-wrap gap-1.5 mt-3">
               {tags.map((tag, i) => (
-                <span key={tag} className={`tag-pill text-xs ${["tag-indigo", "tag-pink", "tag-cyan", "tag-emerald", "tag-amber", "tag-violet"][i % 6]}`}>
+                <span
+                  key={tag}
+                  className="tag-pill text-xs"
+                  style={{ borderColor: accent, color: accent }}
+                >
                   {tag}
                 </span>
               ))}
