@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useRef, useCallback } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import Fuse from "fuse.js";
 import { Search, ArrowRight, FileText, Hash, Calendar } from "lucide-react";
 
@@ -11,6 +11,7 @@ interface SearchDoc {
   description: string;
   tags: string[];
   date: string;
+  type: "posts" | "thoughts";
 }
 
 export default function SearchModal() {
@@ -23,15 +24,21 @@ export default function SearchModal() {
   const inputRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
+  const pathname = usePathname();
+  const scope: "posts" | "thoughts" = pathname.startsWith("/posts") ? "posts" : "thoughts";
 
-  // Load search index
+  // Load search index (dependent on scope rebuild)
   useEffect(() => {
     async function load() {
       try {
         const res = await fetch("/api/search");
-        const data: SearchDoc[] = await res.json();
+        const data: { posts: SearchDoc[]; thoughts: SearchDoc[] } = await res.json();
+        const docs = (scope === "posts" ? data.posts : data.thoughts).map((d) => ({
+          ...d,
+          type: scope,
+        }));
         setFuse(
-          new Fuse(data, {
+          new Fuse(docs, {
             keys: [
               { name: "title", weight: 2 },
               { name: "tags", weight: 1.5 },
@@ -46,7 +53,7 @@ export default function SearchModal() {
       }
     }
     load();
-  }, []);
+  }, [scope]);
 
   // Keyboard shortcut: ⌘K / Ctrl+K
   useEffect(() => {
@@ -90,11 +97,11 @@ export default function SearchModal() {
   );
 
   const goTo = useCallback(
-    (slug: string) => {
+    (doc: SearchDoc) => {
       setOpen(false);
       setQuery("");
       setResults([]);
-      router.push(`/posts/${slug}`);
+      router.push(doc.type === "posts" ? `/posts/${doc.slug}` : `/thoughts/${doc.slug}`);
     },
     [router]
   );
@@ -109,7 +116,7 @@ export default function SearchModal() {
         setActiveIndex((i) => (i > 0 ? i - 1 : results.length - 1));
       } else if (e.key === "Enter" && activeIndex >= 0 && results[activeIndex]) {
         e.preventDefault();
-        goTo(results[activeIndex].slug);
+        goTo(results[activeIndex]);
       }
     },
     [results, activeIndex, goTo]
@@ -170,7 +177,7 @@ export default function SearchModal() {
                 value={query}
                 onChange={(e) => handleSearch(e.target.value)}
                 onKeyDown={handleKeyDown}
-                placeholder="搜索文章..."
+                placeholder="搜索文章 / 碎碎念念"
                 autoComplete="off"
                 spellCheck={false}
                 className="flex-1 bg-transparent text-[15px] text-fg outline-none placeholder:text-muted-fg/60"
@@ -226,7 +233,7 @@ export default function SearchModal() {
                     <button
                       key={doc.slug}
                       data-index={i}
-                      onClick={() => goTo(doc.slug)}
+                      onClick={() => goTo(doc)}
                       onMouseEnter={() => setActiveIndex(i)}
                       className={`w-full text-left px-4 py-3 transition-colors border-b border-[var(--card-border)] last:border-0 cursor-pointer ${
                         i === activeIndex
@@ -253,6 +260,10 @@ export default function SearchModal() {
                             </div>
                           )}
                           <div className="flex items-center gap-2.5 mt-1.5">
+                            <span className="inline-flex items-center gap-1 text-[11px] text-muted-fg/60">
+                              <FileText size={10} />
+                              {doc.type === "thoughts" ? "碎碎念念" : "文章"}
+                            </span>
                             {doc.date && (
                               <span className="inline-flex items-center gap-1 text-[11px] text-muted-fg/60">
                                 <Calendar size={10} />

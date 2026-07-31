@@ -1,11 +1,11 @@
 import { NextResponse } from "next/server";
 import { getAllPosts } from "@/lib/posts";
+import { getAllThoughts, extractPreview } from "@/lib/thoughts";
 
 export const dynamic = "force-static";
 
 export async function GET() {
-  const posts = getAllPosts();
-  const index = posts.map((post) => ({
+  const posts = getAllPosts().map((post) => ({
     slug: post.slug,
     title: post.frontmatter.title,
     description: post.frontmatter.description,
@@ -13,5 +13,13 @@ export async function GET() {
     date: post.frontmatter.date,
   }));
 
-  return NextResponse.json(index);
+  const thoughts = getAllThoughts().map((thought) => ({
+    slug: thought.slug,
+    title: thought.frontmatter.title,
+    description: extractPreview(thought.content, 1),
+    tags: [] as string[],
+    date: thought.frontmatter.date,
+  }));
+
+  return NextResponse.json({ posts, thoughts });
 }
