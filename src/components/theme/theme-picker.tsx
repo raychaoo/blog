@@ -34,7 +34,7 @@ export default function ThemePicker() {
                 setTheme(t.name);
                 setOpen(false);
               }}
-              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors cursor-pointer ${
+              className={`btn-press w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors cursor-pointer ${
                 theme === t.name
                   ? "bg-[var(--color-accent)]/10 text-[var(--color-accent)] font-medium"
                   : "text-fg hover:bg-[var(--muted-bg)]"

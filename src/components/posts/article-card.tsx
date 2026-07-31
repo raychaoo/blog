@@ -20,7 +20,7 @@ export default function ArticleCard({ post, index = 0 }: ArticleCardProps) {
   const accent = ACCENTS[index % ACCENTS.length];
 
   return (
-    <Link href={`/posts/${post.slug}`} className="block h-full">
+    <Link href={`/posts/${post.slug}`} className="btn-press block h-full">
       <article className="article-card h-full">
         <div className="flex-1 flex flex-col">
           <div className="card-date text-sm mb-2">

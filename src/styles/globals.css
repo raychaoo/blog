@@ -899,3 +899,37 @@ button:focus-visible:not(:focus-visible) {
     animation: none;
   }
 }
+
+/* ── Page transitions (Chromium MPA view transitions) ── */
+@view-transition {
+  navigation: auto;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  ::view-transition-old(root) {
+    animation: page-enter 0.28s ease-out reverse;
+  }
+  ::view-transition-new(root) {
+    animation: page-enter 0.28s ease-out;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none;
+  }
+}
+
+/* ── Global button/link micro-interactions ── */
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
+}
+.tag-pill,
+.touch-target {
+  transition: transform 0.15s ease, color 0.15s ease, border-color 0.15s ease, background-color 0.15s ease;
+}
+.tag-pill:active,
+.touch-target:active {
+  transform: scale(0.96);
+}

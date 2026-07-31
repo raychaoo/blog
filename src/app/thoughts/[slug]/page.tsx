@@ -54,7 +54,7 @@ export default async function ThoughtPage({ params }: ThoughtPageProps) {
     <div className="page-enter max-w-3xl mx-auto px-4 sm:px-6 py-6 sm:py-10">
       <Link
         href="/thoughts"
-        className="inline-flex touch-target items-center gap-1.5 text-xs text-muted-fg hover:text-[var(--color-accent)] transition-colors mb-6"
+        className="btn-press inline-flex touch-target items-center gap-1.5 text-xs text-muted-fg hover:text-[var(--color-accent)] transition-colors mb-6"
       >
         <ArrowLeft size={14} />
         返回碎碎念念
