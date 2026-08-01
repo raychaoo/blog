@@ -173,37 +173,11 @@ const GooeyNav: React.FC<GooeyNavProps> = ({
             transition: color 0.3s ease;
           }
           .effect.text.active {
-            color: var(--color-accent-foreground);
+            color: var(--color-accent);
           }
           .effect.filter {
             filter: blur(7px) contrast(100) blur(0);
             mix-blend-mode: lighten;
-          }
-          .effect.filter::before {
-            content: "";
-            position: absolute;
-            inset: -75px;
-            z-index: -2;
-            background: var(--color-accent);
-          }
-          .effect.filter::after {
-            content: "";
-            position: absolute;
-            inset: 0;
-            background: white;
-            transform: scale(0);
-            opacity: 0;
-            z-index: -1;
-            border-radius: 9999px;
-          }
-          .effect.active::after {
-            animation: pill 0.3s ease both;
-          }
-          @keyframes pill {
-            to {
-              transform: scale(1);
-              opacity: 1;
-            }
           }
           .particle,
           .point {
@@ -273,23 +247,8 @@ const GooeyNav: React.FC<GooeyNavProps> = ({
             }
           }
           li.active {
-            color: var(--color-accent-foreground);
+            color: var(--color-accent);
             text-shadow: none;
-          }
-          li.active::after {
-            opacity: 1;
-            transform: scale(1);
-          }
-          li::after {
-            content: "";
-            position: absolute;
-            inset: 0;
-            border-radius: 8px;
-            background: var(--color-accent);
-            opacity: 0;
-            transform: scale(0);
-            transition: all 0.3s ease;
-            z-index: -1;
           }
         `}
       </style>
