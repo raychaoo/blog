@@ -773,25 +773,11 @@ button:focus-visible:not(:focus-visible) {
 
 /* ── Hero (homepage) ── */
 .hero-section {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 2rem;
-  align-items: center;
-}
-@media (min-width: 1024px) {
-  .hero-section {
-    grid-template-columns: minmax(0, 5fr) minmax(0, 4fr);
-  }
+  display: block;
 }
 .hero-lanyard {
-  height: clamp(360px, 52vh, 560px);
-  min-height: 360px;
-}
-.hero-tagline {
-  margin-top: 0.75rem;
-}
-.hero-intro {
-  margin-top: 1rem;
+  height: clamp(480px, calc(100dvh - 56px), 880px);
+  min-height: 480px;
 }
 
 .btn-press:active {
