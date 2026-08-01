@@ -9,5 +9,8 @@
       ".claude/skills/ui-styling",
       ".claude/skills/banner-design"
     ]
+  },
+  "registries": {
+    "@react-bits": "https://reactbits.dev/r/{name}.json"
   }
 }
