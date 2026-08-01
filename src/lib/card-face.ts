@@ -6,6 +6,21 @@ const LABEL = "VIBECODING · BLOG";
 // CJK punctuation that should stay attached to the line it follows.
 const PUNCT = /[，。、！？：；]/;
 
+// Width heuristic in em: CJK ideographs, CJK symbols and fullwidth forms
+// (U+3000–U+9FFF, U+FF00–U+FFEF) count 1em; latin, digits, spaces count 0.5em.
+const CJK = /[　-鿿＀-￯]/;
+
+// Vertical layout of the card face (SVG units). Content is centered within the
+// safe area (inner rect 14..710) so the face reads balanced; the metal clip
+// overlays only the very top of the texture.
+const LABEL_Y = 145;
+const NAME_Y = 295;
+const DIVIDER_Y = 355;
+const TAGLINE_START_Y = 425;
+const TAGLINE_LINE_H = 44;
+const INTRO_GAP = 46;
+const INTRO_LINE_H = 40;
+
 export interface CardFaceOptions {
   name: string;
   accent: string;
@@ -14,10 +29,10 @@ export interface CardFaceOptions {
 }
 
 /** Approximate char width in em units: CJK = 1, latin/digits/space = 0.5. */
-function textWidth(text: string): number {
+export function textWidth(text: string): number {
   let w = 0;
   for (const ch of text) {
-    w += /[　-鿿＀-￯]/.test(ch) ? 1 : 0.5;
+    w += CJK.test(ch) ? 1 : 0.5;
   }
   return w;
 }
@@ -118,25 +133,22 @@ export function buildCardFrontSvg({ name, accent, tagline, intro }: CardFaceOpti
   const taglineLines = wrapLines(tagline, 20);
   const introLines = wrapLines(intro, 23);
 
-  const taglineStartY = 370;
-  const taglineLineH = 44;
-  const introStartY = taglineStartY + taglineLines.length * taglineLineH + 46;
-  const introLineH = 40;
+  const introStartY = TAGLINE_START_Y + taglineLines.length * TAGLINE_LINE_H + INTRO_GAP;
 
   const taglineTexts = taglineLines
-    .map((line, i) => textTag(240, taglineStartY + i * taglineLineH, 22, "#cbd5e1", line))
+    .map((line, i) => textTag(240, TAGLINE_START_Y + i * TAGLINE_LINE_H, 22, "#cbd5e1", line))
     .join("");
   const introTexts = introLines
-    .map((line, i) => textTag(240, introStartY + i * introLineH, 18, "#94a3b8", line))
+    .map((line, i) => textTag(240, introStartY + i * INTRO_LINE_H, 18, "#94a3b8", line))
     .join("");
 
   const svg =
     `<svg xmlns="http://www.w3.org/2000/svg" width="${CARD_FACE_WIDTH}" height="${CARD_FACE_HEIGHT}" viewBox="0 0 ${CARD_FACE_WIDTH} ${CARD_FACE_HEIGHT}">` +
     `<rect width="${CARD_FACE_WIDTH}" height="${CARD_FACE_HEIGHT}" rx="24" fill="#111827" opacity="0.92"/>` +
     `<rect x="14" y="14" width="${CARD_FACE_WIDTH - 28}" height="${CARD_FACE_HEIGHT - 28}" rx="18" fill="none" stroke="${escapeXml(accent)}" stroke-width="2" opacity="0.6"/>` +
-    textTag(240, 90, 20, accent, LABEL) +
-    textTag(240, 240, 44, "#ffffff", `你好，我是 ${name}`) +
-    `<line x1="140" y1="300" x2="340" y2="300" stroke="${escapeXml(accent)}" stroke-width="2" opacity="0.6"/>` +
+    textTag(240, LABEL_Y, 20, escapeXml(accent), LABEL) +
+    textTag(240, NAME_Y, 44, "#ffffff", `你好，我是 ${name}`) +
+    `<line x1="140" y1="${DIVIDER_Y}" x2="340" y2="${DIVIDER_Y}" stroke="${escapeXml(accent)}" stroke-width="2" opacity="0.6"/>` +
     taglineTexts +
     introTexts +
     `</svg>`;

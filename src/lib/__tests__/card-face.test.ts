@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { buildCardFrontSvg, wrapLines } from "../card-face";
+import { buildCardFrontSvg, textWidth, wrapLines } from "../card-face";
 
 const TAGLINE = "全栈开发者 · 热爱 React 与 TypeScript · 记录技术学习与思考";
 const INTRO = "记录前端工程化、React 生态与开发效率的实践，有长文，也有碎碎念念。";
@@ -28,6 +28,28 @@ describe("wrapLines", () => {
   it("sub-breaks a single word longer than maxWidth", () => {
     expect(wrapLines("一二三四五六七八九十", 5)).toEqual(["一二三四五", "六七八九十"]);
   });
+});
+
+describe("wrapLines width invariant", () => {
+  const corpus = [
+    "TypeScript",
+    "全栈开发者 · 热爱 React 与 TypeScript · 记录技术学习与思考",
+    "记录前端工程化、React 生态与开发效率的实践，有长文，也有碎碎念念。",
+    "一二三四五六七八九十",
+    "a b c d e f g",
+    "，，，，，，，，，，，，，，",
+  ];
+  for (const text of corpus) {
+    for (const maxWidth of [1, 5, 20, 23]) {
+      it(`wraps ${JSON.stringify(text.slice(0, 12))}… at maxWidth ${maxWidth} without exceeding it`, () => {
+        const lines = wrapLines(text, maxWidth);
+        expect(lines.length).toBeGreaterThan(0);
+        for (const line of lines) {
+          expect(textWidth(line)).toBeLessThanOrEqual(maxWidth);
+        }
+      });
+    }
+  }
 });
 
 describe("buildCardFrontSvg", () => {
