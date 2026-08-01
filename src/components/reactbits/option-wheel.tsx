@@ -278,13 +278,18 @@ const OptionWheel = ({
       if (dragMovedRef.current) return;
       const cfg = cfgRef.current;
       const cur = targetRef.current;
+      // 只有点击当前高亮的卡片才触发 onItemClick(打开详情);
+      // 点击其他卡片仅滚动过去使其高亮,需要再点一次才会打开
+      if (index === selectedRef.current) {
+        onItemClickRef.current?.(index, cfg.items[index]);
+        return;
+      }
       let d = index - (((cur % cfg.count) + cfg.count) % cfg.count);
       if (cfg.loop && cfg.count > 1) {
         if (d > cfg.count / 2) d -= cfg.count;
         else if (d < -cfg.count / 2) d += cfg.count;
       }
       applyTarget(cur + d, true);
-      onItemClickRef.current?.(index, cfg.items[index]);
     },
     [applyTarget]
   );
