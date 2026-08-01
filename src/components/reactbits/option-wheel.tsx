@@ -7,6 +7,8 @@ export interface OptionWheelProps {
   items?: string[];
   defaultSelected?: number;
   onChange?: (index: number, item: string) => void;
+  onItemClick?: (index: number, item: string) => void;
+  renderItem?: (item: string, index: number, selected: boolean) => React.ReactNode;
   textColor?: string;
   activeColor?: string;
   side?: Side;
@@ -62,6 +64,8 @@ const OptionWheel = ({
   items = DEFAULT_ITEMS,
   defaultSelected = 3,
   onChange,
+  onItemClick,
+  renderItem,
   textColor = '#a6a6a6',
   activeColor = '#ffffff',
   side = 'left',
@@ -88,6 +92,7 @@ const OptionWheel = ({
   const lastRef = useRef(0);
   const cfgRef = useRef<WheelConfig>({} as WheelConfig);
   const onChangeRef = useRef(onChange);
+  const onItemClickRef = useRef(onItemClick);
   const selectedRef = useRef(defaultSelected);
   const wheelTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const dragRef = useRef<{ y: number; start: number; id: number } | null>(null);
@@ -101,6 +106,7 @@ const OptionWheel = ({
   const remPx = typeof window !== 'undefined' ? parseFloat(getComputedStyle(document.documentElement).fontSize) || 16 : 16;
 
   onChangeRef.current = onChange;
+  onItemClickRef.current = onItemClick;
   cfgRef.current = {
     count: items.length,
     items,
@@ -276,6 +282,7 @@ const OptionWheel = ({
         else if (d < -cfg.count / 2) d += cfg.count;
       }
       applyTarget(cur + d, true);
+      onItemClickRef.current?.(index, cfg.items[index]);
     },
     [applyTarget]
   );
@@ -333,12 +340,12 @@ const OptionWheel = ({
           }}
           role="option"
           aria-selected={selectedIndex === index}
-          className={`absolute top-1/2 cursor-pointer whitespace-nowrap leading-none will-change-[transform,opacity,filter] [font-size:var(--ow-font-size)] [color:color-mix(in_srgb,var(--ow-active-color)_calc(var(--ow-p,0)*100%),var(--ow-text-color))] ${
+          className={`absolute top-1/2 cursor-pointer leading-none will-change-[transform,opacity,filter] [font-size:var(--ow-font-size)] [color:color-mix(in_srgb,var(--ow-active-color)_calc(var(--ow-p,0)*100%),var(--ow-text-color))] ${
             side === 'right' ? 'right-[var(--ow-inset)] origin-right' : 'left-[var(--ow-inset)] origin-left'
-          } ${selectedIndex === index ? 'font-medium' : 'font-extralight'}`}
+          } ${selectedIndex === index ? 'font-medium' : 'font-extralight'} ${renderItem ? '' : 'whitespace-nowrap'}`}
           onClick={() => handleItemClick(index)}
         >
-          {label}
+          {renderItem ? renderItem(label, index, selectedIndex === index) : label}
         </div>
       ))}
     </div>
