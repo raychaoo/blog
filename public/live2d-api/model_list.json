@@ -1,3 +1,8 @@
 {
-  "models": ["shizuku"]
+  "models": ["shizuku", "pio", "tia"],
+  "messages": [
+    "来自 Live2D 官方示例的 Shizuku 酱 ~",
+    "来自 Potion Maker 的 Pio 酱 ~",
+    "来自 Potion Maker 的 Tia 酱 ~"
+  ]
 }
