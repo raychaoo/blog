@@ -2,131 +2,152 @@
 
 # VibeCoding Blog
 
-Personal tech blog built with Next.js 16 + React 19 + TypeScript + Tailwind CSS v4.
+个人技术博客,基于 Next.js 16 + React 19 + TypeScript + Tailwind CSS v4 构建。
 
-## Tech Stack
+## 技术栈
 
-- **Framework**: Next.js 16 (App Router)
-- **UI**: React 19, TypeScript 5
-- **Styling**: Tailwind CSS v4 (`@tailwindcss/postcss`), CSS custom properties
-- **Content**: MDX via `unified` + `remark` + `rehype` pipeline (NOT `@next/mdx`)
-- **Fonts**: Alibaba PuHuiTi 3.0 (self-hosted WOFF2, no Google Fonts API)
-- **Search**: Fuse.js (client-side fuzzy search)
-- **Animations**: GSAP (@gsap/react) + Three.js / react-three-fiber (Lanyard)
-- **UI library**: ReactBits (self-hosted/hand-typed components)
-- **Icons**: Lucide React
-- **Testing**: Vitest (run with Node; use jsdom@26 only when a DOM env is genuinely required)
-- **Analytics**: @vercel/analytics
+- **框架**:Next.js 16(App Router)
+- **UI**:React 19、TypeScript 5
+- **样式**:Tailwind CSS v4(`@tailwindcss/postcss`)+ CSS 自定义属性
+- **内容**:MDX 走 `unified` + `remark` + `rehype` 管线(不用 `@next/mdx`)
+- **字体**:阿里巴巴普惠体 3.0(自托管 WOFF2,无 Google Fonts API)
+- **搜索**:Fuse.js(客户端模糊搜索)
+- **动效**:GSAP(@gsap/react)+ Three.js / react-three-fiber(Lanyard)
+- **UI 库**:ReactBits(自托管/手写组件)
+- **图标**:Lucide React
+- **测试**:Vitest(Node 环境运行;仅当组件确实需要 DOM 时才用 jsdom@26)
+- **统计**:@vercel/analytics
 
-## Architecture
+## 架构
 
 ```
 content/
-├── posts/{slug}/index.mdx          # MDX articles with frontmatter
-└── thoughts/{slug}/index.mdx       # 碎碎念念 (short thoughts) with frontmatter (title, date)
+├── posts/{slug}/index.mdx          # 文章 MDX(frontmatter)
+└── thoughts/{slug}/index.mdx       # 碎碎念念(frontmatter: title, date)
 public/
-├── fonts/                          # Self-hosted Alibaba PuHuiTi WOFF2 files
-├── lanyard/                        # Lanyard card.glb + image assets
-├── live2d/                         # Self-hosted live2d-widget v1 + Shizuku model (fully static)
-└── live2d-api/                     # Self-hosted live2d API hub (waifu/model API fallback)
+├── fonts/                          # 自托管阿里巴巴普惠体 WOFF2
+├── lanyard/                        # Lanyard 的 card.glb + 图片资源
+├── live2d/                         # 自托管 live2d-widget v1 + 3 个模型(完全静态)
+└── live2d-api/                     # 自托管 live2d API 静态树(模型/切换配置)
 src/
 ├── app/
-│   ├── layout.tsx                  # Root layout + BlogThemeProvider + sticky GooeyNav header + Live2dMascot
-│   ├── page.tsx                    # Homepage (hero: Lanyard + profile card + stats; no post list / no search)
-│   ├── posts/page.tsx              # /posts article grid (ChromaGrid header, tag filter, search, scroll restore)
-│   ├── posts/[slug]/page.tsx       # Article detail page
-│   ├── thoughts/page.tsx           # /thoughts timeline (OptionWheel filter, preview cards)
-│   ├── thoughts/[slug]/page.tsx    # Thought detail page
-│   ├── sitemap.ts                  # Auto-generated sitemap (/posts + /thoughts entries, force-static)
-│   ├── rss.xml/route.ts            # RSS feed
-│   └── api/search/route.ts         # Search index API
+│   ├── layout.tsx                  # 根布局:BlogThemeProvider + ProgressBar + GooeyNav 头部 + Live2dMascot
+│   ├── page.tsx                    # 首页:hero 单个 Lanyard + 「关于我」资料卡(无文章列表/搜索)
+│   ├── posts/page.tsx              # /posts 文章网格(ChromaGrid 区域背景对齐 body、标签筛选、搜索、滚动恢复)
+│   ├── posts/[slug]/page.tsx       # 文章详情页
+│   ├── thoughts/page.tsx           # /thoughts 轮盘即列表(OptionWheel 富卡片 + 返回位置恢复)
+│   ├── thoughts/[slug]/page.tsx    # 碎碎念念详情页
+│   ├── sitemap.ts                  # 自动生成 sitemap(/posts + /thoughts,force-static)
+│   ├── rss.xml/route.ts            # RSS 订阅
+│   └── api/search/route.ts         # 搜索索引 API(dynamic = "force-static",构建时生成 {posts, thoughts})
 ├── components/
-│   ├── home/                       # home-client.tsx (client wrapper) + hero.tsx + github-contributions.tsx
-│   ├── nav/header.tsx              # Site header (server) hosting GooeyNav
-│   ├── live2d/live2d-mascot.tsx    # Global mascot (lazy-loaded from /live2d, 全屏宽,移动端画布 180px + 触摸拖动)
-│   ├── mdx/                        # toc.tsx, progress-bar.tsx, giscus.tsx, giscus-dynamic.tsx, code-enhancer.tsx
-│   ├── posts/                      # posts-client.tsx (search + tag filter + grid) + article-card.tsx
-│   ├── thoughts/thoughts-client.tsx# Thought timeline client (filter + search)
-│   ├── reactbits/                  # Self-hosted ReactBits: gooey-nav, lanyard, option-wheel, chroma-grid,
-│   │                               #   split-text, text-type, shuffle, scroll-float
-│   ├── search/search.tsx           # Search modal (fuse.js, shared across /posts & /thoughts)
-│   └── theme/                      # theme-provider.tsx (context) + theme-picker.tsx (dropdown)
+│   ├── home/                       # home-client.tsx(客户端包装)+ hero.tsx(单个 Lanyard)+ github-contributions.tsx
+│   ├── nav/header.tsx              # 站点头部(server 组件,承载 GooeyNav)
+│   ├── live2d/live2d-mascot.tsx    # 全局看板娘(延迟懒加载 /live2d,拖动 + 位置记忆,移动端画布 180px + 触摸拖动)
+│   ├── mdx/                        # toc.tsx、progress-bar.tsx、giscus.tsx、giscus-dynamic.tsx、code-enhancer.tsx
+│   ├── posts/                      # posts-client.tsx(搜索 + 标签筛选 + 网格)+ article-card.tsx
+│   ├── thoughts/thoughts-client.tsx# 碎碎念念列表客户端(轮盘即列表 + 滚动恢复)
+│   ├── reactbits/                  # 自托管 ReactBits:gooey-nav、lanyard、option-wheel、chroma-grid、
+│   │                               #   split-text、text-type、shuffle、scroll-float(仅最小扩展,见约定)
+│   ├── search/search.tsx           # 搜索弹窗(fuse.js,/posts 与 /thoughts 共用)
+│   └── theme/                      # theme-provider.tsx(上下文)+ theme-picker.tsx(下拉)
 ├── lib/
-│   ├── posts.ts                    # Parse frontmatter, list/filter posts
-│   ├── thoughts.ts                 # Parse thoughts frontmatter, list/sort, extractPreview
-│   ├── accent-colors.ts            # useAccentColors()/readAccentColors() — reads theme accent CSS vars
-│   └── mdx.ts                      # MDX compile (unified pipeline)
+│   ├── posts.ts                    # 解析 frontmatter、文章列表/筛选/标签、预计阅读时长
+│   ├── thoughts.ts                 # 解析 frontmatter、排序、extractPreview 摘要
+│   ├── accent-colors.ts            # useAccentColors()/readAccentColors() — 读取主题 accent CSS 变量
+│   ├── card-face.ts                # buildCardFrontSvg():生成 480×724 hero 卡片正面 SVG(纯函数,TDD)
+│   ├── mdx.ts                      # MDX 编译(unified 管线)
+│   └── __tests__/                  # accent-colors / card-face / posts / thoughts 单测
 └── styles/
-    └── globals.css                 # All styles + 6 theme variables
+    └── globals.css                 # 全部样式 + 6 套主题变量
 ```
 
-## Routes
+## 路由
 
-| Route | Purpose |
-|-------|---------|
-| `/` | Homepage — hero (Lanyard + profile card + GitHub stats/contributions), GooeyNav. No article list, no search box. |
-| `/posts` | Article list — ChromaGrid glow header, tag filter pills, Fuse.js search, scroll position restore. |
-| `/posts/[slug]` | Article detail — SplitText title, staggered meta fade-in, tag chips as `<span>`, Giscus comments, page transition. |
-| `/thoughts` | 碎碎念念 — OptionWheel filter, timeline with entrance animations, 3-line preview cards, search hits. |
-| `/thoughts/[slug]` | Thought detail — title animation, MDX render, Giscus comments, back link. |
+| 路由 | 用途 |
+|------|------|
+| `/` | 首页 — 单个居中放大的 Lanyard 3D 挂绳卡(介绍文案烘焙进卡片正面,见 `card-face.ts`)+ 下方「关于我」资料卡(GitHub 头像、文章/标签/始于统计、贡献图)。无文章列表、无搜索框。 |
+| `/posts` | 文章列表 — ChromaGrid 网格(区域背景与 body 一致)、标签筛选胶囊、Fuse.js 搜索、滚动位置恢复(`posts-scroll`)。 |
+| `/posts/[slug]` | 文章详情 — SplitText 标题、meta 错峰淡入、标签为 `<span>`、Giscus 评论、页面切换动效。 |
+| `/thoughts` | 碎碎念念 — 轮盘即列表:整页一个 OptionWheel,每项为标题+时间+预览富卡片,滚动切高亮、点击进详情;返回时从上次点击处平滑恢复。 |
+| `/thoughts/[slug]` | 碎碎念念详情 — 标题动效、MDX 渲染、Giscus 评论、返回链接。 |
 
-## Layout
+## 布局
 
-The site uses a **single global GooeyNav sticky header + full-width content** layout:
+全站为**单个全局 GooeyNav 粘性头部 + 全宽内容**布局:
 
-1. **Global header** (`src/components/nav/header.tsx`): sticky ReactBits GooeyNav with animated items linking to `/posts` and `/thoughts` (both Nav items).
-2. **Homepage**: top-bottom hero (Lanyard 3D lanyard card + profile card + avatar/stats + GitHub contribution graph + about), full width. No sidebar, no post list, no search.
-3. **Article / thought pages**: full-width content flow with an MDX table of contents (sticky on the right), reading progress bar on top, Giscus comments at the bottom.
+1. **全局头部**([src/components/nav/header.tsx](src/components/nav/header.tsx)):粘性 ReactBits GooeyNav,链接到 `/posts` 与 `/thoughts`(搜索入口按路由显隐,仅 /posts 与 /thoughts 显示)。
+2. **首页**:自上而下为 hero(单个 Lanyard,文案烘焙进卡片,单栏布局 `clamp(480px, 100dvh - 56px, 880px)`)+「关于我」资料卡(GitHub 头像/统计/贡献图),全宽,无侧边栏、无文章列表、无搜索。
+3. **文章/碎碎念念页**:全宽内容流,右侧粘性 MDX 目录(TOC),顶部阅读进度条,底部 Giscus 评论。
 
-No legacy sidebar. Profile content lives in the homepage hero card.
+无历史侧边栏;个人资料位于首页「关于我」资料卡。
 
-## Theme System (Custom, no next-themes)
+## 主题系统(自研,无 next-themes)
 
-6 themes defined via `[data-theme="..."]` CSS attribute selectors:
-- `light` — White background, indigo accent
-- `dark` — Dark background, light indigo accent
-- `sepia` — Warm cream, copper accent
-- `ocean` — Navy dark, cyan accent
-- `lavender` — Soft purple light, violet accent
-- `midnight` — Very dark, emerald accent
+通过 `[data-theme="..."]` CSS 属性选择器定义 6 套主题:
 
-Theme persisted to `localStorage("blog-theme")`. Anti-flash script in `<head>` reads it (falls back to `prefers-color-scheme`) before hydration.
+- `light` — 白色背景,indigo 强调色
+- `dark` — 深色背景,浅 indigo 强调色
+- `sepia` — 暖米色,copper 强调色
+- `ocean` — 藏青深色,cyan 强调色
+- `lavender` — 淡紫浅色,violet 强调色
+- `midnight` — 极深色,emerald 强调色
 
-**Important**: All theme-dependent colors use CSS variables (`var(--bg-color)`, `var(--fg-color)`, `var(--color-accent)`, etc.), NOT Tailwind theme tokens. `@theme inline` only defines interactive/decoration tokens.
+主题持久化到 `localStorage("blog-theme")`;`<head>` 中的防闪烁脚本在水合前读取它(回退 `prefers-color-scheme`)。
 
-Each theme defines a **6-color accent family** as CSS vars:
-`--color-accent` + `--color-accent-violet|pink|cyan|emerald|amber`.
-Consumers read these at runtime via `useAccentColors()` / `readAccentColors()` from `@/lib/accent-colors` for JS-driven color props (GSAP particle colors, Three.js materials, ChromaGrid).
+**重要**:所有主题相关颜色都走 CSS 变量(`var(--bg-color)`、`var(--fg-color)`、`var(--color-accent)` 等),不用 Tailwind 主题 token;`@theme inline` 只定义交互/装饰 token。
 
-## Key Conventions
+每套主题定义 **6 色 accent 族** CSS 变量:`--color-accent` + `--color-accent-violet|pink|cyan|emerald|amber`。需要 JS 驱动颜色属性(GSAP 粒子色、Three.js 材质、ChromaGrid)的组件通过 `@/lib/accent-colors` 的 `useAccentColors()` / `readAccentColors()` 运行时读取,主题切换时重渲染。
 
-- **Server Components by default** — only add `"use client"` when needed (interactivity, browser APIs)
-- **CSS variables** for theming, not Tailwind's `dark:` variant
-- **Tailwind v4** uses `@import "tailwindcss"` and `@theme` — no `tailwind.config.ts`
-- **Fonts**: Alibaba PuHuiTi 3.0 — self-hosted via `@font-face` in `globals.css`, `--font-sans` and `--font-heading` both use it
-- **MDX pipeline** uses `unified` (remark-parse → remark-gfm → remark-rehype → rehype-slug → rehype-autolink-headings → rehype-pretty-code → rehype-stringify)
-- **ReactBits 配色必须走 `useAccentColors`/CSS 变量** — never hardcode hex in animated components that should follow the theme; pass accent family / CSS vars down and re-render on theme change
-- **Color system**: 6 accent colors (indigo/violet/pink/cyan/emerald/amber) cycle through tags and decorative elements via the theme accent CSS vars
-- **Live2D is fully self-hosted & static** — no external CDN. The mascot lazy-loads `waifu-tips.js` + `waifu.css` from `/live2d` after 1.5s, draggable (mouse + touch), with `hitokoto`/`photo`/`info`/`quit` tools and 3 switchable models (shizuku/Pio/Tia); canvas shrinks to 180px below 768px.
+## 构建与部署
 
-## Commands
+- **静态导出**:[next.config.ts](next.config.ts) 设置 `output: 'export'` — 产物为纯静态站点(`out/`),无 Node 服务端。
+- **`reactStrictMode: false`(必须保留)**:本机 AMD RX 6600M + ANGLE D3D11 组合下,StrictMode 双挂载 r3f Canvas 会残留两个 WebGL context,GPU 进程约 1 秒后崩溃(webglcontextlost → 3D 卡片变空白)。生产静态导出不受影响(StrictMode 双调用仅开发期),改回 true 前需先在真机上验证。
+- **vercel.json**:Vercel 部署(`pnpm install` + `next build`);`/fonts/*` 加 1 年 immutable 缓存头。
+- **搜索索引**:`/api/search` 路由 `dynamic = "force-static"`,构建时生成 `{posts, thoughts}` 双索引;客户端搜索弹窗直接 `fetch("/api/search")` 再交给 Fuse.js。
+
+## 关键约定
+
+- **Server Components 优先** — 仅在需要交互/浏览器 API 时加 `"use client"`
+- **CSS 变量**做主题化,不用 Tailwind 的 `dark:` 变体
+- **Tailwind v4** 用 `@import "tailwindcss"` + `@theme`,无 `tailwind.config.ts`
+- **字体**:阿里巴巴普惠体 3.0 — `globals.css` 里 `@font-face` 自托管,`--font-sans` 与 `--font-heading` 都用它
+- **MDX 管线**用 `unified`(remark-parse → remark-gfm → remark-rehype → rehype-slug → rehype-autolink-headings → rehype-pretty-code → rehype-stringify)
+- **ReactBits 配色必须走 `useAccentColors`/CSS 变量** — 动效组件禁止硬编码 hex;把 accent 族/CSS 变量传进去,主题切换时重渲染
+- **颜色系统**:6 个 accent 色(indigo/violet/pink/cyan/emerald/amber)经主题 CSS 变量在标签与装饰元素间轮换
+- **ChromaGrid 区域背景与 body 一致** — 两层区域级调暗遮罩已删除;卡片悬停光斑用 `color-mix(var(--color-accent) 18%)`,卡片渐变用 28% accent 稀释到 `--card-bg`
+- **ReactBits vendor 边界**:官方组件只做最小扩展(加 prop、不改默认行为),如 OptionWheel 新增 `initialScrollTo`(返回位置恢复)/`onItemClick`(仅显式点击)/`renderItem`(富卡片);live2d-widget 编译文件一律不修改
+- **Live2D 全自托管静态** — 无外部 CDN。mascot 延迟 1.5s 后从 `/live2d` 懒加载 `waifu-tips.js` + `waifu.css`;可拖动(鼠标 + 触摸),位置持久化到 `localStorage("waifu-position")` 跨页/刷新保持;3 个可循环切换模型(shizuku/Pio/Tia,Cubism 2,切换有对应欢迎语);带 `hitokoto`/`photo`/`info`/`quit` 工具;768px 以下画布收窄为 180px(`!important` 覆盖 waifu.css)+ `touch-action: none` 触摸拖动
+
+## 测试与门禁
+
+- `pnpm test` 只覆盖**纯逻辑** TDD(vitest,`environment: "node"`,include `src/**/*.test.ts`);jsdom@26 仅在组件真需要 DOM 时按需加,现有测试全部走 Node 环境
+- 现有测试:`src/lib/__tests__/`(accent-colors / card-face / posts / thoughts)+ `src/app/api/search/__tests__/route.test.ts`
+- UI/动效无单测先例,以 `pnpm build` + 手工验证清单(curl 冒烟 + 浏览器核对)为门禁
+- `pnpm lint` 仓库基线已坏(历史遗留),只在改到相关文件时自查
+
+## 命令
 
 ```bash
-pnpm dev       # Development server (hot reload)
-pnpm build     # Production build
-pnpm start     # Production server
-pnpm test      # Vitest run (unit tests for lib + search route)
-pnpm lint      # ESLint (repo baseline is broken pre-existing; scope to touched files when in doubt)
+pnpm dev       # 开发服务器(热更新)
+pnpm build     # 生产构建(静态导出到 out/)
+pnpm start     # 生产服务器
+pnpm test      # Vitest 单测(lib + 搜索路由)
+pnpm lint      # ESLint(仓库基线已坏,只自查改动文件)
 ```
 
-## Dependencies
+## 依赖
 
-Key runtime: next, react, react-dom, @giscus/react, @vercel/analytics, fuse.js, lucide-react, gray-matter.
+核心运行时:next、react、react-dom、@giscus/react、@vercel/analytics、fuse.js、lucide-react、gray-matter。
 
-**Animation / 3D stack**: gsap, @gsap/react, three, @react-three/fiber, @react-three/drei, @react-three/rapier, meshline.
+**动效 / 3D 栈**:gsap、@gsap/react、three、@react-three/fiber、@react-three/drei、@react-three/rapier、meshline。
 
-**MDX / content**: unified ecosystem (remark-parse, remark-gfm, remark-rehype, rehype-slug, rehype-autolink-headings, rehype-pretty-code, rehype-stringify, unist-util-visit).
+**MDX / 内容**:unified 生态(remark-parse、remark-gfm、remark-rehype、rehype-slug、rehype-autolink-headings、rehype-pretty-code、rehype-stringify、unist-util-visit)。
 
-**Dev / test**: vitest, jsdom (^26 — pinned; only add `environment: "jsdom"` when a component truly needs a DOM, otherwise keep the Node env).
+**开发 / 测试**:vitest、jsdom(^26 — 已锁定;仅当组件真需要 DOM 时才加 `environment: "jsdom"`,否则保持 Node 环境)。
 
-No `next-themes`, no `@next/mdx`, no `@mdx-js/mdx`, no `@fontsource/*`.
+无 `next-themes`、无 `@next/mdx`、无 `@mdx-js/mdx`、无 `@fontsource/*`。
+
+## 参考文档
+
+- [docs/superpowers/README.md](docs/superpowers/README.md) — superpowers 工作流(brainstorming → writing-plans → SDD/executing-plans → requesting-code-review)产出的设计规格与实施计划**关键内容索引**(原始 plans/、specs/ 已归档删除)
