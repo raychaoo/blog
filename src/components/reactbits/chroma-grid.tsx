@@ -160,7 +160,8 @@ const ChromaGrid: React.FC<ChromaGridProps> = ({
         {
           '--r': `${radius}px`,
           '--x': '50%',
-          '--y': '50%'
+          '--y': '50%',
+          background: 'var(--bg-color)'
         } as React.CSSProperties
       }
     >
