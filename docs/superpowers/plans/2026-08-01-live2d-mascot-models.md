@@ -345,10 +345,229 @@ pnpm dev
 | 6 | 按住模型画布拖动 | 看板娘跟随鼠标移动,且不超出视口上下/左右边界 |
 | 7 | 拖动到新位置后刷新页面 / 切换路由再返回 | 位置保持(读 `localStorage("waifu-position")`) |
 | 8 | 开发者工具 Network 面板 | 全程无 `githubusercontent`/`jsdelivr` 等外网请求(仅 localhost) |
-| 9 | 窗口缩到 <768px | 看板娘隐藏,不报错(原有行为不回退) |
+| 9 | 窗口缩到 <768px(移动端) | 看板娘显示、画布 180px、单指触摸拖动生效(见 Task 5) |
 
 - [ ] **Step 3: 如发现缺陷,回到对应 Task 修复后重验**
 
 - [ ] **Step 4: 全部通过后,向用户报告验证结果(含截图/实测描述),等待合并指示**
+
+---
+
+### Task 5: 移动端支持(移除 768px 限制 + 180px 画布 + 触摸拖动)
+
+**Files:**
+- Modify: `src/components/live2d/live2d-mascot.tsx`(整体替换为下方代码)
+- Modify: `src/styles/globals.css`(文件末尾追加媒体查询)
+- Modify: `CLAUDE.md`(更新 live2d 描述中的 "desktop-only (hidden <768px)")
+
+**Interfaces:**
+- Consumes: Task 3 的 `bindPositionPersistence`/`applyIfReady` 结构(本任务在其内部扩展)。
+- Produces: 无(行为契约):全屏宽加载看板娘;`<768px` 时画布 180px;触摸单指拖动 `#live2d` 可移动整个看板娘并钳制视口;触摸拖动结束时保存位置;桌面行为不变。
+
+**背景知识**(已从 vendor 源码确认):
+
+- 小部件内置拖动仅监听 `mousedown/mousemove/mouseup`(绑定在 `#waifu`,target 须为 `#live2d`),触摸设备不触发,需自行补 touch 等效实现。
+- cubism2 核心在 canvas 上自绑 `touchstart/touchend/touchmove`(模型本体点击/拖参互动),与容器级拖动互不冲突。
+- `#live2d` 的 300x300 是 vendor waifu.css 定死,须用**我们的** globals.css + `!important` 覆盖(waifu.css 为运行时后注入,同特异性下后者赢)。
+- iOS 上须 `touch-action: none`(或 touchmove 非被动 + preventDefault)才能阻止页面滚动接管手势。
+- `<768px` 早退是唯一限制入口(waifu.css 无媒体查询),删除即全屏显示。
+
+- [ ] **Step 1: `src/styles/globals.css` 末尾追加移动端媒体查询**
+
+```css
+/* 移动端看板娘:缩小画布并允许触摸拖动(!important 覆盖运行时注入的 waifu.css) */
+@media (max-width: 767px) {
+  #live2d {
+    width: 180px !important;
+    height: 180px !important;
+    touch-action: none;
+  }
+}
+```
+
+- [ ] **Step 2: 整体替换 `src/components/live2d/live2d-mascot.tsx`**
+
+```tsx
+"use client";
+
+import { useEffect } from "react";
+
+declare global {
+  interface Window {
+    initWidget?: (options: Record<string, unknown>) => void;
+  }
+}
+
+const POSITION_KEY = "waifu-position";
+
+// 模块级 flag:防 React StrictMode 开发模式双挂载导致的重复绑定
+let bound = false;
+
+export default function Live2dMascot() {
+  useEffect(() => {
+    let cancelled = false;
+
+    const timer = window.setTimeout(
+      () => {
+        if (cancelled) return;
+
+        const css = document.createElement("link");
+        css.rel = "stylesheet";
+        css.href = "/live2d/waifu.css";
+
+        const script = document.createElement("script");
+        script.type = "module";
+        script.src = "/live2d/waifu-tips.js";
+
+        script.onload = () => {
+          window.initWidget?.({
+            waifuPath: "/live2d/waifu-tips.json",
+            cdnPath: "/live2d-api/",
+            cubism2Path: "/live2d/live2d.min.js",
+            tools: ["hitokoto", "switch-model", "photo", "info", "quit"],
+            drag: true,
+          });
+          bindPositionPersistence();
+        };
+        document.head.append(css, script);
+      },
+      1500 // 延迟加载，避免影响首屏
+    );
+
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timer);
+    };
+  }, []);
+
+  return null;
+}
+
+/** 看板娘拖动位置持久化:恢复 + 保存 + 触摸拖动 */
+function bindPositionPersistence() {
+  if (bound) return;
+  bound = true;
+
+  // 读取保存的位置;缺失或解析失败(值损坏)返回 null,回退默认位置
+  const readSaved = (): { top: number; left: number } | null => {
+    try {
+      const raw = localStorage.getItem(POSITION_KEY);
+      if (!raw) return null;
+      const parsed = JSON.parse(raw) as { top?: unknown; left?: unknown };
+      if (typeof parsed.top !== "number" || typeof parsed.left !== "number") {
+        return null;
+      }
+      return { top: parsed.top, left: parsed.left };
+    } catch {
+      return null;
+    }
+  };
+
+  // 保存当前位置;首次拖动前 style.top/left 为空字符串,跳过
+  const save = () => {
+    const waifu = document.getElementById("waifu");
+    if (!waifu) return;
+    const { top, left } = waifu.style;
+    if (!top.endsWith("px") || !left.endsWith("px")) return;
+    localStorage.setItem(
+      POSITION_KEY,
+      JSON.stringify({ top: parseFloat(top), left: parseFloat(left) })
+    );
+  };
+
+  // 恢复位置,按内置拖动同款公式对当前视口钳制
+  const restore = (waifu: HTMLElement) => {
+    const saved = readSaved();
+    if (!saved) return;
+    const maxLeft = Math.max(0, window.innerWidth - waifu.offsetWidth);
+    const maxTop = Math.max(0, window.innerHeight - waifu.offsetHeight);
+    waifu.style.left = `${Math.min(Math.max(saved.left, 0), maxLeft)}px`;
+    waifu.style.top = `${Math.min(Math.max(saved.top, 0), maxTop)}px`;
+  };
+
+  // 触摸拖动(移动端):内置拖动只监听鼠标事件,这里补 touch 等效实现
+  const bindTouchDrag = (waifu: HTMLElement) => {
+    const canvas = document.getElementById("live2d");
+    if (!canvas) return;
+    canvas.addEventListener(
+      "touchstart",
+      (e: TouchEvent) => {
+        if (e.touches.length !== 1) return;
+        const touch = e.touches[0];
+        const rect = waifu.getBoundingClientRect();
+        const dx = touch.clientX - rect.left;
+        const dy = touch.clientY - rect.top;
+        const maxLeft = Math.max(0, window.innerWidth - waifu.offsetWidth);
+        const maxTop = Math.max(0, window.innerHeight - waifu.offsetHeight);
+        const onMove = (ev: TouchEvent) => {
+          ev.preventDefault(); // 抑制页面滚动
+          const t = ev.touches[0];
+          waifu.style.left = `${Math.min(Math.max(t.clientX - dx, 0), maxLeft)}px`;
+          waifu.style.top = `${Math.min(Math.max(t.clientY - dy, 0), maxTop)}px`;
+        };
+        const onEnd = () => {
+          document.removeEventListener("touchmove", onMove);
+          document.removeEventListener("touchend", onEnd);
+          save(); // 触摸拖动的 mouseup 不可靠,结束时直接保存
+        };
+        document.addEventListener("touchmove", onMove, { passive: false });
+        document.addEventListener("touchend", onEnd);
+      },
+      { passive: true }
+    );
+  };
+
+  // #waifu 由小部件异步创建:先查一次,未出现则用 MutationObserver 等待
+  const applyIfReady = () => {
+    const waifu = document.getElementById("waifu");
+    if (!waifu) return false;
+    restore(waifu);
+    bindTouchDrag(waifu);
+    return true;
+  };
+
+  if (!applyIfReady()) {
+    const observer = new MutationObserver(() => {
+      if (applyIfReady()) observer.disconnect();
+    });
+    observer.observe(document.documentElement, { childList: true, subtree: true });
+  }
+
+  document.addEventListener("mouseup", save);
+}
+```
+
+注意:删除原 `if (window.innerWidth < 768) return;` 早退(全屏宽加载);`bindTouchDrag` 在 `applyIfReady` 内调用(`#waifu` 出现后),模块级 `bound` flag 已防重复绑定。
+
+- [ ] **Step 3: 更新 `CLAUDE.md` 的 live2d 描述**
+
+把两处 "desktop-only" 相关描述改为移动端可用:
+
+```markdown
+├── live2d/live2d-mascot.tsx    # Global mascot (lazy-loaded from /live2d, 全屏宽,移动端画布 180px + 触摸拖动)
+```
+
+```markdown
+- **Live2D is fully self-hosted & static** — no external CDN. The mascot lazy-loads `waifu-tips.js` + `waifu.css` from `/live2d` after 1.5s, draggable (mouse + touch), with `hitokoto`/`photo`/`info`/`quit` tools and 3 switchable models (shizuku/Pio/Tia); canvas shrinks to 180px below 768px.
+```
+
+- [ ] **Step 4: TypeScript 门禁**
+
+```bash
+pnpm build
+```
+
+预期:构建成功(`✓ Compiled successfully`),无 TS 报错。
+
+- [ ] **Step 5: 提交**
+
+```bash
+git add src/components/live2d/live2d-mascot.tsx src/styles/globals.css CLAUDE.md
+git commit -m "feat: show live2d mascot on mobile with touch drag and smaller canvas"
+```
+
+- [ ] **Step 6: 验证提示**
+
+告知用户:桌面行为不变;iPhone SE(375px)显示 180px 画布、单指可拖动、点击模型有表情/动作、位置记忆生效。
 
 ---
