@@ -118,10 +118,12 @@ function bindPositionPersistence() {
         const onEnd = () => {
           document.removeEventListener("touchmove", onMove);
           document.removeEventListener("touchend", onEnd);
+          document.removeEventListener("touchcancel", onEnd);
           save(); // 触摸拖动的 mouseup 不可靠,结束时直接保存
         };
         document.addEventListener("touchmove", onMove, { passive: false });
         document.addEventListener("touchend", onEnd);
+        document.addEventListener("touchcancel", onEnd);
       },
       { passive: true }
     );
