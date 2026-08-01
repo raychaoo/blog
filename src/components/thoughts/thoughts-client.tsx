@@ -1,8 +1,11 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import OptionWheel from "@/components/reactbits/option-wheel";
 import type { ThoughtMeta } from "@/lib/thoughts";
+
+const WHEEL_RETURN_KEY = "thoughts-wheel-return";
 
 interface ThoughtView extends ThoughtMeta {
   preview: string;
@@ -15,10 +18,23 @@ interface Props {
 export default function ThoughtsClient({ thoughts }: Props) {
   const router = useRouter();
   const titles = thoughts.map((t) => t.frontmatter.title);
+  const [restoreIdx, setRestoreIdx] = useState<number | null>(null);
+
+  // 从详情返回时恢复轮盘位置:读取上次点击的 slug,解析为当前列表索引,一次性恢复
+  useEffect(() => {
+    const slug = sessionStorage.getItem(WHEEL_RETURN_KEY);
+    sessionStorage.removeItem(WHEEL_RETURN_KEY);
+    if (!slug) return;
+    const idx = thoughts.findIndex((t) => t.slug === slug);
+    if (idx !== -1) setRestoreIdx(idx);
+  }, [thoughts]);
 
   function handleSelect(idx: number) {
     const target = thoughts[idx];
-    if (target) router.push(`/thoughts/${target.slug}`);
+    if (target) {
+      sessionStorage.setItem(WHEEL_RETURN_KEY, target.slug);
+      router.push(`/thoughts/${target.slug}`);
+    }
   }
 
   return (
@@ -31,6 +47,7 @@ export default function ThoughtsClient({ thoughts }: Props) {
           <OptionWheel
             items={titles}
             defaultSelected={0}
+            initialScrollTo={restoreIdx ?? undefined}
             onItemClick={handleSelect}
             renderItem={(title, i, selected) => {
               const t = thoughts[i];
