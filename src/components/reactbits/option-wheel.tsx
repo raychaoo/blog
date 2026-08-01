@@ -25,6 +25,7 @@ export interface OptionWheelProps {
   draggable?: boolean;
   soundUrl?: string;
   soundVolume?: number;
+  initialScrollTo?: number;
   className?: string;
 }
 
@@ -82,7 +83,8 @@ const OptionWheel = ({
   draggable = true,
   soundUrl = '',
   soundVolume = 0.5,
-  className = ''
+  className = '',
+  initialScrollTo
 }: OptionWheelProps) => {
   const rootRef = useRef<HTMLDivElement>(null);
   const itemRefs = useRef<(HTMLDivElement | null)[]>([]);
@@ -302,6 +304,12 @@ const OptionWheel = ({
   useEffect(() => {
     applyTarget(targetRef.current, false);
   }, [items, fontSize, spacing, curve, tilt, blur, fade, minOpacity, side, loop, smoothing, applyTarget]);
+
+  // 返回时恢复到上次浏览的位置:从当前 posRef 平滑滚动并吸附到 initialScrollTo
+  useEffect(() => {
+    if (initialScrollTo == null) return;
+    applyTarget(initialScrollTo, true);
+  }, [initialScrollTo, applyTarget]);
 
   useEffect(
     () => () => {
