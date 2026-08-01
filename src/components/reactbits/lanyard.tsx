@@ -191,46 +191,49 @@ function Band({
   const cardMap = useMemo(() => {
     const baseMap = materials.base.map as THREE.Texture;
     if (!frontImage && !backImage) return baseMap;
+    try {
+      const baseImg = baseMap.image as any;
+      const W = baseImg.width;
+      const H = baseImg.height;
+      const canvas = document.createElement('canvas');
+      canvas.width = W;
+      canvas.height = H;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return baseMap;
+      // Keep the original baked atlas for the card edges and any untouched face.
+      ctx.drawImage(baseImg, 0, 0, W, H);
 
-    const baseImg = baseMap.image as any;
-    const W = baseImg.width;
-    const H = baseImg.height;
-    const canvas = document.createElement('canvas');
-    canvas.width = W;
-    canvas.height = H;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return baseMap;
-    // Keep the original baked atlas for the card edges and any untouched face.
-    ctx.drawImage(baseImg, 0, 0, W, H);
+      const drawFitted = (img: any, rect: typeof FRONT_UV_RECT) => {
+        const rx = rect.x * W;
+        const ry = rect.y * H;
+        const rw = rect.w * W;
+        const rh = rect.h * H;
+        const pick = imageFit === 'contain' ? Math.min : Math.max;
+        const scale = pick(rw / img.width, rh / img.height);
+        const dw = img.width * scale;
+        const dh = img.height * scale;
+        const dx = rx + (rw - dw) / 2;
+        const dy = ry + (rh - dh) / 2;
+        ctx.save();
+        ctx.beginPath();
+        ctx.rect(rx, ry, rw, rh);
+        ctx.clip();
+        ctx.drawImage(img, dx, dy, dw, dh);
+        ctx.restore();
+      };
 
-    const drawFitted = (img: any, rect: typeof FRONT_UV_RECT) => {
-      const rx = rect.x * W;
-      const ry = rect.y * H;
-      const rw = rect.w * W;
-      const rh = rect.h * H;
-      const pick = imageFit === 'contain' ? Math.min : Math.max;
-      const scale = pick(rw / img.width, rh / img.height);
-      const dw = img.width * scale;
-      const dh = img.height * scale;
-      const dx = rx + (rw - dw) / 2;
-      const dy = ry + (rh - dh) / 2;
-      ctx.save();
-      ctx.beginPath();
-      ctx.rect(rx, ry, rw, rh);
-      ctx.clip();
-      ctx.drawImage(img, dx, dy, dw, dh);
-      ctx.restore();
-    };
+      if (frontImage && frontTex.image) drawFitted(frontTex.image, FRONT_UV_RECT);
+      if (backImage && backTex.image) drawFitted(backTex.image, BACK_UV_RECT);
 
-    if (frontImage && frontTex.image) drawFitted(frontTex.image, FRONT_UV_RECT);
-    if (backImage && backTex.image) drawFitted(backTex.image, BACK_UV_RECT);
-
-    const composite = new THREE.CanvasTexture(canvas);
-    composite.colorSpace = THREE.SRGBColorSpace;
-    composite.flipY = baseMap.flipY;
-    composite.anisotropy = 16;
-    composite.needsUpdate = true;
-    return composite;
+      const composite = new THREE.CanvasTexture(canvas);
+      composite.colorSpace = THREE.SRGBColorSpace;
+      composite.flipY = baseMap.flipY;
+      composite.anisotropy = 16;
+      composite.needsUpdate = true;
+      return composite;
+    } catch {
+      return baseMap;
+    }
   }, [frontImage, backImage, imageFit, frontTex, backTex, materials.base.map]);
   const [curve] = useState(
     () =>

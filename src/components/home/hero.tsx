@@ -32,7 +32,8 @@ export default function Hero({ name }: HeroProps) {
   const colors = useAccentColors();
   const cardFront = useMemo(
     () => buildCardFrontSvg(name, "全栈开发者 · React / Next.js / TypeScript", colors.accent),
-    [name, colors.accent]
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [name]
   );
 
   return (
@@ -76,7 +77,7 @@ export default function Hero({ name }: HeroProps) {
         </div>
       </div>
 
-      <div className="hero-lanyard" aria-hidden>
+      <div className="hero-lanyard">
         <Lanyard frontImage={cardFront} position={[0, 0, 30]} gravity={[0, -40, 0]} fov={20} />
       </div>
     </section>
