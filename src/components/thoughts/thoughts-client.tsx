@@ -34,19 +34,24 @@ export default function ThoughtsClient({ thoughts }: Props) {
             onItemClick={handleSelect}
             renderItem={(title, i, selected) => {
               const t = thoughts[i];
+              const d = new Date(t.frontmatter.date);
               return (
                 <div className={`thoughts-wheel-card ${selected ? "selected" : ""}`}>
-                  <div className="flex items-baseline justify-between gap-3 flex-wrap">
-                    <span className="font-heading font-semibold text-sm">{title}</span>
-                    <time dateTime={t.frontmatter.date} className="text-[11px] text-muted-fg">
-                      {new Date(t.frontmatter.date).toLocaleDateString("zh-CN", {
-                        year: "numeric",
-                        month: "long",
-                        day: "numeric",
-                      })}
+                  <div className="flex items-center gap-3">
+                    <time
+                      dateTime={t.frontmatter.date}
+                      className="shrink-0 self-stretch flex flex-col items-center justify-center pr-3 border-r border-surface"
+                    >
+                      <span className="font-heading text-[13px] font-semibold leading-none">
+                        {String(d.getMonth() + 1).padStart(2, "0")}/{String(d.getDate()).padStart(2, "0")}
+                      </span>
+                      <span className="text-[10px] text-muted-fg leading-none mt-1">{d.getFullYear()}</span>
                     </time>
+                    <div className="min-w-0 flex-1">
+                      <div className="font-heading font-semibold text-sm truncate">{title}</div>
+                      <p className="text-xs text-muted-fg leading-relaxed mt-1 line-clamp-2">{t.preview}</p>
+                    </div>
                   </div>
-                  <p className="text-xs text-muted-fg leading-relaxed mt-1 line-clamp-2">{t.preview}</p>
                 </div>
               );
             }}
@@ -56,7 +61,7 @@ export default function ThoughtsClient({ thoughts }: Props) {
             inset={40}
             tilt={3}
             fontSize={3.5}
-            spacing={1.6}
+            spacing={1.75}
             blur={0.5}
             fade={0.35}
           />
