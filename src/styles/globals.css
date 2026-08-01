@@ -225,6 +225,13 @@ body {
 .bg-surface-muted { background: var(--muted-bg); }
 .border-surface { border-color: var(--card-border); }
 
+/* Frosted glass mask (antdv6-style) for modals / drawers */
+.frosted-mask {
+  background: rgba(0, 0, 0, 0.45);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+}
+
 /* ===== Article Card ===== */
 
 .article-card {

@@ -102,7 +102,7 @@ export default function Toc({ headings }: TocProps) {
       {isOpen && (
         <div className="lg:hidden fixed inset-0 z-40 flex">
           <div
-            className="absolute inset-0 bg-black/40 animate-fade-in"
+            className="absolute inset-0 frosted-mask"
             onClick={() => setIsOpen(false)}
           />
           <div

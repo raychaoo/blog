@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useRef, useCallback } from "react";
+import { createPortal } from "react-dom";
 import { useRouter, usePathname } from "next/navigation";
 import Fuse from "fuse.js";
 import { Search, ArrowRight, FileText, Hash, Calendar } from "lucide-react";
@@ -153,12 +154,15 @@ export default function SearchModal() {
         </kbd>
       </button>
 
-      {/* Overlay */}
-      {open && (
+      {/* Overlay — portaled to <body>: the header has backdrop-filter, which
+          becomes the containing block for fixed descendants and would confine
+          `fixed inset-0` to the header strip. Portal breaks that dependency. */}
+      {open &&
+        createPortal(
         <div className="fixed inset-0 z-50">
           {/* Backdrop */}
           <div
-            className="absolute inset-0 bg-black/40 backdrop-blur-sm animate-fade-in"
+            className="absolute inset-0 frosted-mask"
             onClick={() => setOpen(false)}
           />
 
@@ -315,7 +319,8 @@ export default function SearchModal() {
             </div>
           </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </>
   );
