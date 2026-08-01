@@ -54,6 +54,7 @@ interface LanyardProps {
   imageFit?: 'cover' | 'contain';
   lanyardImage?: string | null;
   lanyardWidth?: number;
+  cardScale?: number;
 }
 
 export default function Lanyard({
@@ -65,9 +66,11 @@ export default function Lanyard({
   backImage = null,
   imageFit = 'cover',
   lanyardImage = null,
-  lanyardWidth = 1
+  lanyardWidth = 1,
+  cardScale = 2.25
 }: LanyardProps) {
   const [isMobile, setIsMobile] = useState<boolean>(() => typeof window !== 'undefined' && window.innerWidth < 768);
+  const scaled = isMobile ? cardScale * 0.8 : cardScale;
 
   useEffect(() => {
     const handleResize = (): void => setIsMobile(window.innerWidth < 768);
@@ -92,6 +95,7 @@ export default function Lanyard({
             imageFit={imageFit}
             lanyardImage={lanyardImage}
             lanyardWidth={lanyardWidth}
+            cardScale={scaled}
           />
         </Physics>
         <Environment blur={0.75}>
@@ -138,6 +142,7 @@ interface BandProps {
   imageFit?: 'cover' | 'contain';
   lanyardImage?: string | null;
   lanyardWidth?: number;
+  cardScale?: number;
 }
 
 type LanyardRigidBody = RapierRigidBody & {
@@ -152,7 +157,8 @@ function Band({
   backImage = null,
   imageFit = 'cover',
   lanyardImage = null,
-  lanyardWidth = 1
+  lanyardWidth = 1,
+  cardScale = 2.25
 }: BandProps) {
   const band = useRef<THREE.Mesh<InstanceType<typeof MeshLineGeometry>, InstanceType<typeof MeshLineMaterial>>>(null!);
   const fixed = useRef<RapierRigidBody>(null!);
@@ -313,33 +319,34 @@ function Band({
           {...segmentProps}
           type={dragged ? 'kinematicPosition' : 'dynamic'}
         >
-          <CuboidCollider args={[0.8, 1.125, 0.01]} />
-          <group
-            scale={2.25}
-            position={[0, -1.2, -0.05]}
-            onPointerOver={() => hover(true)}
-            onPointerOut={() => hover(false)}
-            onPointerUp={(e: ThreeEvent<PointerEvent>) => {
-              (e.target as Element).releasePointerCapture(e.pointerId);
-              drag(false);
-            }}
-            onPointerDown={(e: ThreeEvent<PointerEvent>) => {
-              (e.target as Element).setPointerCapture(e.pointerId);
-              drag(new THREE.Vector3().copy(e.point).sub(vec.copy(card.current.translation())));
-            }}
-          >
-            <mesh geometry={nodes.card.geometry}>
-              <meshPhysicalMaterial
-                map={cardMap}
-                map-anisotropy={16}
-                clearcoat={isMobile ? 0 : 1}
-                clearcoatRoughness={0.15}
-                roughness={0.9}
-                metalness={0.8}
-              />
-            </mesh>
-            <mesh geometry={nodes.clip.geometry} material={materials.metal} material-roughness={0.3} />
-            <mesh geometry={nodes.clamp.geometry} material={materials.metal} />
+          <group scale={cardScale}>
+            <CuboidCollider args={[0.8, 1.125, 0.01]} />
+            <group
+              position={[0, -1.2, -0.05]}
+              onPointerOver={() => hover(true)}
+              onPointerOut={() => hover(false)}
+              onPointerUp={(e: ThreeEvent<PointerEvent>) => {
+                (e.target as Element).releasePointerCapture(e.pointerId);
+                drag(false);
+              }}
+              onPointerDown={(e: ThreeEvent<PointerEvent>) => {
+                (e.target as Element).setPointerCapture(e.pointerId);
+                drag(new THREE.Vector3().copy(e.point).sub(vec.copy(card.current.translation())));
+              }}
+            >
+              <mesh geometry={nodes.card.geometry}>
+                <meshPhysicalMaterial
+                  map={cardMap}
+                  map-anisotropy={16}
+                  clearcoat={isMobile ? 0 : 1}
+                  clearcoatRoughness={0.15}
+                  roughness={0.9}
+                  metalness={0.8}
+                />
+              </mesh>
+              <mesh geometry={nodes.clip.geometry} material={materials.metal} material-roughness={0.3} />
+              <mesh geometry={nodes.clamp.geometry} material={materials.metal} />
+            </group>
           </group>
         </RigidBody>
       </group>
