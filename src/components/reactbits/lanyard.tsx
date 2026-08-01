@@ -29,10 +29,13 @@ declare module '@react-three/fiber' {
   }
 }
 
-// 1x1 transparent pixel — lets useTexture be called unconditionally when a
-// front/back image isn't supplied.
-const BLANK_PIXEL =
-  'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==';
+// Placeholder image — lets useTexture be called unconditionally when a
+// front/back image isn't supplied. NOTE: must NOT be a 1x1 data-URL PNG:
+// uploading one triggers WebGL "texSubImage2D: bad image data"
+// (INVALID_VALUE) on some GPU stacks, corrupting the context. A regular-size
+// local image uploads cleanly and is never shown (compositing is skipped when
+// the corresponding image prop is null).
+const BLANK_PIXEL = '/lanyard/lanyard.png';
 
 // The card model's front face is UV-mapped to the LEFT half of the texture
 // atlas and the back face to the RIGHT half (measured from card.glb). Each
