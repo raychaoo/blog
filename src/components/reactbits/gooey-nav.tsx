@@ -1,5 +1,10 @@
 'use client';
 import React, { useRef, useEffect, useState } from 'react';
+// Use next/link (not a plain <a>) so navigation is a client-side soft
+// navigation instead of a full page reload — reloads re-downloaded the
+// whole JS bundle + 21MB of fonts and re-initialized Lanyard/ChromaGrid
+// on every nav click (flicker + stutter, worse on low bandwidth).
+import Link from 'next/link';
 
 interface GooeyNavItem {
   label: string;
@@ -105,7 +110,12 @@ const GooeyNav: React.FC<GooeyNavProps> = ({
   };
   const handleClick = (e: React.MouseEvent<HTMLAnchorElement>, index: number) => {
     const liEl = e.currentTarget;
-    if (activeIndex === index) return;
+    if (activeIndex === index) {
+      // Clicking the tab we're already on used to be a full page reload.
+      // Block the navigation entirely instead.
+      e.preventDefault();
+      return;
+    }
     setActiveItem(index);
     updateEffectPosition(liEl);
     if (filterRef.current) {
@@ -121,18 +131,13 @@ const GooeyNav: React.FC<GooeyNavProps> = ({
       makeParticles(filterRef.current);
     }
   };
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLAnchorElement>, index: number) => {
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLAnchorElement>) => {
+    // Enter/Space on a focused link normally dispatches a click — but only
+    // Enter does. Normalize Space too by synthesizing the click ourselves
+    // (this is also what actually triggers the navigation).
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault();
-      const liEl = e.currentTarget.parentElement;
-      if (liEl) {
-        handleClick(
-          {
-            currentTarget: liEl
-          } as React.MouseEvent<HTMLAnchorElement>,
-          index
-        );
-      }
+      e.currentTarget.click();
     }
   };
   useEffect(() => {
@@ -256,7 +261,7 @@ const GooeyNav: React.FC<GooeyNavProps> = ({
         <nav className="flex relative" style={{ transform: 'translate3d(0,0,0.01px)' }}>
           <ul
             ref={navRef}
-            className="flex gap-8 list-none p-0 px-4 m-0 relative z-[3]"
+            className="flex gap-3 sm:gap-8 list-none p-0 px-2 sm:px-4 m-0 relative z-[3]"
             style={{
               color: 'var(--fg-color)',
               textShadow: '0 1px 1px color-mix(in srgb, var(--fg-color) 20%, transparent)'
@@ -269,14 +274,14 @@ const GooeyNav: React.FC<GooeyNavProps> = ({
                   activeIndex === index ? 'active' : ''
                 }`}
               >
-                <a
+                <Link
                   href={item.href}
                   onClick={e => handleClick(e, index)}
-                  onKeyDown={e => handleKeyDown(e, index)}
-                  className="outline-none py-[0.6em] px-[1em] inline-block"
+                  onKeyDown={e => handleKeyDown(e)}
+                  className="outline-none py-[0.6em] px-[0.6em] sm:px-[1em] inline-block"
                 >
                   {item.label}
-                </a>
+                </Link>
               </li>
             ))}
           </ul>
