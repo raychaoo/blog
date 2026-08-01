@@ -2,7 +2,6 @@
 
 import { useMemo } from "react";
 import dynamic from "next/dynamic";
-import Link from "next/link";
 import SplitText from "@/components/reactbits/split-text";
 import TextType from "@/components/reactbits/text-type";
 import Shuffle from "@/components/reactbits/shuffle";
@@ -66,15 +65,6 @@ export default function Hero({ name }: HeroProps) {
         <p className="hero-intro text-sm sm:text-base text-muted-fg max-w-xl">
           记录技术学习与开发实践，涵盖前端工程化、React 生态、开发效率等话题。这里有长文、有碎碎念念，也有我自己。
         </p>
-
-        <div className="hero-actions flex flex-wrap gap-3">
-          <Link href="/posts" className="btn-press btn-primary">
-            浏览文章
-          </Link>
-          <Link href="/thoughts" className="btn-press btn-secondary">
-            碎碎念念
-          </Link>
-        </div>
       </div>
 
       <div className="hero-lanyard">

@@ -794,37 +794,6 @@ button:focus-visible:not(:focus-visible) {
   margin-top: 1rem;
 }
 
-/* ── Buttons ── */
-.btn-primary,
-.btn-secondary {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.625rem 1.25rem;
-  border-radius: 9999px;
-  font-size: 0.875rem;
-  font-weight: 500;
-  transition: transform 0.15s ease, box-shadow 0.2s ease, background-color 0.2s ease;
-  cursor: pointer;
-}
-.btn-primary {
-  background: var(--color-accent);
-  color: var(--color-accent-foreground);
-  box-shadow: 0 4px 14px -4px var(--color-accent);
-}
-.btn-primary:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 8px 20px -4px var(--color-accent);
-}
-.btn-secondary {
-  border: 1px solid var(--card-border);
-  color: var(--fg-color);
-}
-.btn-secondary:hover {
-  border-color: var(--color-accent);
-  color: var(--color-accent);
-  transform: translateY(-1px);
-}
 .btn-press:active {
   transform: scale(0.96);
 }
