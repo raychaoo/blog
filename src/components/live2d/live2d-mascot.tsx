@@ -8,6 +8,11 @@ declare global {
   }
 }
 
+const POSITION_KEY = "waifu-position";
+
+// 模块级 flag:防 React StrictMode 开发模式双挂载导致的重复绑定
+let bound = false;
+
 export default function Live2dMascot() {
   useEffect(() => {
     if (window.innerWidth < 768) return; // 桌面端显示
@@ -30,8 +35,10 @@ export default function Live2dMascot() {
             waifuPath: "/live2d/waifu-tips.json",
             cdnPath: "/live2d-api/",
             cubism2Path: "/live2d/live2d.min.js",
-            tools: ["hitokoto", "photo", "info", "quit"],
+            tools: ["hitokoto", "switch-model", "photo", "info", "quit"],
+            drag: true,
           });
+          bindPositionPersistence();
         };
         document.head.append(css, script);
       },
@@ -45,4 +52,64 @@ export default function Live2dMascot() {
   }, []);
 
   return null;
+}
+
+/** 看板娘拖动位置持久化:恢复 + 保存 */
+function bindPositionPersistence() {
+  if (bound) return;
+  bound = true;
+
+  // 读取保存的位置;缺失或解析失败(值损坏)返回 null,回退默认位置
+  const readSaved = (): { top: number; left: number } | null => {
+    try {
+      const raw = localStorage.getItem(POSITION_KEY);
+      if (!raw) return null;
+      const parsed = JSON.parse(raw) as { top?: unknown; left?: unknown };
+      if (typeof parsed.top !== "number" || typeof parsed.left !== "number") {
+        return null;
+      }
+      return { top: parsed.top, left: parsed.left };
+    } catch {
+      return null;
+    }
+  };
+
+  // 保存当前位置;首次拖动前 style.top/left 为空字符串,跳过
+  const save = () => {
+    const waifu = document.getElementById("waifu");
+    if (!waifu) return;
+    const { top, left } = waifu.style;
+    if (!top.endsWith("px") || !left.endsWith("px")) return;
+    localStorage.setItem(
+      POSITION_KEY,
+      JSON.stringify({ top: parseFloat(top), left: parseFloat(left) })
+    );
+  };
+
+  // 恢复位置,按内置拖动同款公式对当前视口钳制
+  const restore = (waifu: HTMLElement) => {
+    const saved = readSaved();
+    if (!saved) return;
+    const maxLeft = Math.max(0, window.innerWidth - waifu.offsetWidth);
+    const maxTop = Math.max(0, window.innerHeight - waifu.offsetHeight);
+    waifu.style.left = `${Math.min(Math.max(saved.left, 0), maxLeft)}px`;
+    waifu.style.top = `${Math.min(Math.max(saved.top, 0), maxTop)}px`;
+  };
+
+  // #waifu 由小部件异步创建:先查一次,未出现则用 MutationObserver 等待
+  const applyIfReady = () => {
+    const waifu = document.getElementById("waifu");
+    if (!waifu) return false;
+    restore(waifu);
+    return true;
+  };
+
+  if (!applyIfReady()) {
+    const observer = new MutationObserver(() => {
+      if (applyIfReady()) observer.disconnect();
+    });
+    observer.observe(document.documentElement, { childList: true, subtree: true });
+  }
+
+  document.addEventListener("mouseup", save);
 }
