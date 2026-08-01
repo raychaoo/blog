@@ -15,7 +15,6 @@ let bound = false;
 
 export default function Live2dMascot() {
   useEffect(() => {
-    if (window.innerWidth < 768) return; // 桌面端显示
     let cancelled = false;
 
     const timer = window.setTimeout(
@@ -54,7 +53,7 @@ export default function Live2dMascot() {
   return null;
 }
 
-/** 看板娘拖动位置持久化:恢复 + 保存 */
+/** 看板娘拖动位置持久化:恢复 + 保存 + 触摸拖动 */
 function bindPositionPersistence() {
   if (bound) return;
   bound = true;
@@ -96,11 +95,44 @@ function bindPositionPersistence() {
     waifu.style.top = `${Math.min(Math.max(saved.top, 0), maxTop)}px`;
   };
 
+  // 触摸拖动(移动端):内置拖动只监听鼠标事件,这里补 touch 等效实现
+  const bindTouchDrag = (waifu: HTMLElement) => {
+    const canvas = document.getElementById("live2d");
+    if (!canvas) return;
+    canvas.addEventListener(
+      "touchstart",
+      (e: TouchEvent) => {
+        if (e.touches.length !== 1) return;
+        const touch = e.touches[0];
+        const rect = waifu.getBoundingClientRect();
+        const dx = touch.clientX - rect.left;
+        const dy = touch.clientY - rect.top;
+        const maxLeft = Math.max(0, window.innerWidth - waifu.offsetWidth);
+        const maxTop = Math.max(0, window.innerHeight - waifu.offsetHeight);
+        const onMove = (ev: TouchEvent) => {
+          ev.preventDefault(); // 抑制页面滚动
+          const t = ev.touches[0];
+          waifu.style.left = `${Math.min(Math.max(t.clientX - dx, 0), maxLeft)}px`;
+          waifu.style.top = `${Math.min(Math.max(t.clientY - dy, 0), maxTop)}px`;
+        };
+        const onEnd = () => {
+          document.removeEventListener("touchmove", onMove);
+          document.removeEventListener("touchend", onEnd);
+          save(); // 触摸拖动的 mouseup 不可靠,结束时直接保存
+        };
+        document.addEventListener("touchmove", onMove, { passive: false });
+        document.addEventListener("touchend", onEnd);
+      },
+      { passive: true }
+    );
+  };
+
   // #waifu 由小部件异步创建:先查一次,未出现则用 MutationObserver 等待
   const applyIfReady = () => {
     const waifu = document.getElementById("waifu");
     if (!waifu) return false;
     restore(waifu);
+    bindTouchDrag(waifu);
     return true;
   };
 

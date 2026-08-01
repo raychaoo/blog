@@ -43,7 +43,7 @@ src/
 ├── components/
 │   ├── home/                       # home-client.tsx (client wrapper) + hero.tsx + github-contributions.tsx
 │   ├── nav/header.tsx              # Site header (server) hosting GooeyNav
-│   ├── live2d/live2d-mascot.tsx    # Global mascot (lazy-loaded from /live2d, desktop-only)
+│   ├── live2d/live2d-mascot.tsx    # Global mascot (lazy-loaded from /live2d, 全屏宽,移动端画布 180px + 触摸拖动)
 │   ├── mdx/                        # toc.tsx, progress-bar.tsx, giscus.tsx, giscus-dynamic.tsx, code-enhancer.tsx
 │   ├── posts/                      # posts-client.tsx (search + tag filter + grid) + article-card.tsx
 │   ├── thoughts/thoughts-client.tsx# Thought timeline client (filter + search)
@@ -107,7 +107,7 @@ Consumers read these at runtime via `useAccentColors()` / `readAccentColors()` f
 - **MDX pipeline** uses `unified` (remark-parse → remark-gfm → remark-rehype → rehype-slug → rehype-autolink-headings → rehype-pretty-code → rehype-stringify)
 - **ReactBits 配色必须走 `useAccentColors`/CSS 变量** — never hardcode hex in animated components that should follow the theme; pass accent family / CSS vars down and re-render on theme change
 - **Color system**: 6 accent colors (indigo/violet/pink/cyan/emerald/amber) cycle through tags and decorative elements via the theme accent CSS vars
-- **Live2D is fully self-hosted & static** — no external CDN. The mascot lazy-loads `waifu-tips.js` + `waifu.css` from `/live2d` after 1.5s, desktop-only (hidden <768px), draggable, with `hitokoto`/`photo`/`info`/`quit` tools.
+- **Live2D is fully self-hosted & static** — no external CDN. The mascot lazy-loads `waifu-tips.js` + `waifu.css` from `/live2d` after 1.5s, draggable (mouse + touch), with `hitokoto`/`photo`/`info`/`quit` tools and 3 switchable models (shizuku/Pio/Tia); canvas shrinks to 180px below 768px.
 
 ## Commands
 

@@ -840,3 +840,12 @@ a {
 .touch-target:active {
   transform: scale(0.96);
 }
+
+/* 移动端看板娘:缩小画布并允许触摸拖动(!important 覆盖运行时注入的 waifu.css) */
+@media (max-width: 767px) {
+  #live2d {
+    width: 180px !important;
+    height: 180px !important;
+    touch-action: none;
+  }
+}
