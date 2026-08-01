@@ -848,4 +848,10 @@ a {
     height: 180px !important;
     touch-action: none;
   }
+  /* 消除触摸 :hover 引发的 translateY 过渡跳动,并去掉 transform 过渡 */
+  #waifu,
+  #waifu:hover {
+    transform: none !important;
+    transition: bottom 3s ease-in-out !important;
+  }
 }

@@ -89,6 +89,7 @@ function bindPositionPersistence() {
   const restore = (waifu: HTMLElement) => {
     const saved = readSaved();
     if (!saved) return;
+    waifu.style.bottom = "auto"; // 覆盖 bottom:0,防止固定定位高度被拉伸,保证 offsetHeight 为内容高度
     const maxLeft = Math.max(0, window.innerWidth - waifu.offsetWidth);
     const maxTop = Math.max(0, window.innerHeight - waifu.offsetHeight);
     waifu.style.left = `${Math.min(Math.max(saved.left, 0), maxLeft)}px`;
@@ -103,6 +104,7 @@ function bindPositionPersistence() {
       "touchstart",
       (e: TouchEvent) => {
         if (e.touches.length !== 1) return;
+        waifu.style.bottom = "auto"; // 防止拉伸:保证本帧起 offsetHeight 为内容高度
         const touch = e.touches[0];
         const rect = waifu.getBoundingClientRect();
         const dx = touch.clientX - rect.left;
