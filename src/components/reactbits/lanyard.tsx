@@ -29,6 +29,11 @@ declare module '@react-three/fiber' {
   }
 }
 
+// Card mesh geometry is authored so that this base scale aligns it with the
+// physics collider (0.8 x 1.125 half-extents). cardScale is expressed in
+// units of this base, so the default keeps the original rendering.
+const CARD_BASE_SCALE = 2.25;
+
 // Placeholder image — lets useTexture be called unconditionally when a
 // front/back image isn't supplied. NOTE: must NOT be a 1x1 data-URL PNG:
 // uploading one triggers WebGL "texSubImage2D: bad image data"
@@ -319,9 +324,13 @@ function Band({
           {...segmentProps}
           type={dragged ? 'kinematicPosition' : 'dynamic'}
         >
-          <group scale={cardScale}>
+          {/* Scale collider and meshes together from the authored base; the default
+              cardScale (= CARD_BASE_SCALE) renders at scale 1, identical to the
+              pre-cardScale component. */}
+          <group scale={cardScale / CARD_BASE_SCALE}>
             <CuboidCollider args={[0.8, 1.125, 0.01]} />
             <group
+              scale={CARD_BASE_SCALE}
               position={[0, -1.2, -0.05]}
               onPointerOver={() => hover(true)}
               onPointerOut={() => hover(false)}
