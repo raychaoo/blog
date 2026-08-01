@@ -39,7 +39,7 @@ export default function PostsClient({ posts }: Props) {
     title: post.frontmatter.title,
     subtitle: post.frontmatter.description || post.frontmatter.date,
     url: `/posts/${post.slug}`,
-    gradient: `linear-gradient(160deg, var(--color-accent), var(--bg-color) 180%)`,
+    gradient: `linear-gradient(160deg, color-mix(in srgb, var(--color-accent) 28%, var(--card-bg)), var(--card-bg) 130%)`,
     borderColor: "var(--color-accent)",
     post,
   }));

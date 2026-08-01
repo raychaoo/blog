@@ -176,7 +176,7 @@ const ChromaGrid: React.FC<ChromaGridProps> = ({
             {
               '--card-border': c.borderColor || 'transparent',
               background: c.gradient,
-              '--spotlight-color': 'rgba(255,255,255,0.3)'
+              '--spotlight-color': 'color-mix(in srgb, var(--color-accent) 18%, transparent)'
             } as React.CSSProperties
           }
         >
