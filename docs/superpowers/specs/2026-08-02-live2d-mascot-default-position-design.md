@@ -61,9 +61,10 @@ Live2D 看板娘(`#waifu`)当前默认贴**左下角**:vendored 的 `public/live
 - `pnpm build` 通过(静态导出);
 - 浏览器手工核对:默认出现在右下角、入场动画正常;隐藏看板娘后橙色小标签从右侧露出;
   拖动后刷新,位置记忆仍生效。
-- 仅改一个 CSS 文件,现有 Vitest 测试不受影响。
+- 改动 2 个源文件(globals.css + live2d-mascot.tsx 注入样式与锚点清理),现有 Vitest 测试不受影响。
 
 ## 影响范围
 
-- `src/styles/globals.css` — 唯一改动文件(+约 25 行)
-- `public/live2d/waifu.css`、`live2d-mascot.tsx` — 不动
+- `src/components/live2d/live2d-mascot.tsx` — 运行时注入非 `!important` 样式 `#waifu { left: auto; right: 0; }`(与 waifu.css 同特异性、后加载胜,默认贴右下角;内联 `left` 按级联仍优先)+ 三处 `right: auto` 锚点清理(restore/touchstart/save,防双锚拉伸)
+- `src/styles/globals.css` — `#waifu-toggle` 镜像覆盖(含 `justify-content: flex-start`)+ `#waifu-tool` 视口裁切覆盖(`right: 0`)
+- `public/live2d/waifu.css` — 不动

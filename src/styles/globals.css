@@ -841,6 +841,29 @@ a {
   transform: scale(0.96);
 }
 
+/* 显隐切换小标签镜像到右边缘,slide 动画改用 margin-right */
+#waifu-toggle {
+  right: 0 !important;
+  left: auto !important;
+  margin-left: 0 !important;
+  margin-right: -100px;
+  justify-content: flex-start !important;
+  transition: margin-right 1s !important;
+}
+
+#waifu-toggle.waifu-toggle-active {
+  margin-right: -50px;
+}
+
+#waifu-toggle.waifu-toggle-active:hover {
+  margin-right: -30px;
+}
+
+/* 工具面板贴回看板娘右缘:right: -10px 溢出在右下角默认位会被视口裁切 */
+#waifu-tool {
+  right: 0 !important;
+}
+
 /* 移动端看板娘:缩小画布并允许触摸拖动(!important 覆盖运行时注入的 waifu.css) */
 @media (max-width: 767px) {
   #live2d {

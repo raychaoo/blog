@@ -25,6 +25,11 @@ export default function Live2dMascot() {
         css.rel = "stylesheet";
         css.href = "/live2d/waifu.css";
 
+        // 看板娘默认贴右下角:与 waifu.css 同特异性(ID)且后注入,覆盖其 left: 0;
+        // 刻意不用 !important,让拖拽/restore 写入的内联 left 按级联优先于样式表规则
+        const style = document.createElement("style");
+        style.textContent = "#waifu { left: auto; right: 0; }";
+
         const script = document.createElement("script");
         script.type = "module";
         script.src = "/live2d/waifu-tips.js";
@@ -39,7 +44,7 @@ export default function Live2dMascot() {
           });
           bindPositionPersistence();
         };
-        document.head.append(css, script);
+        document.head.append(css, script, style);
       },
       1500 // 延迟加载，避免影响首屏
     );
@@ -79,6 +84,9 @@ function bindPositionPersistence() {
     if (!waifu) return;
     const { top, left } = waifu.style;
     if (!top.endsWith("px") || !left.endsWith("px")) return;
+    // 内联锚定生效后清掉样式表的右/下锚,防止双锚把元素拉伸成整条透明带
+    waifu.style.right = "auto";
+    waifu.style.bottom = "auto";
     localStorage.setItem(
       POSITION_KEY,
       JSON.stringify({ top: parseFloat(top), left: parseFloat(left) })
@@ -90,6 +98,7 @@ function bindPositionPersistence() {
     const saved = readSaved();
     if (!saved) return;
     waifu.style.bottom = "auto"; // 覆盖 bottom:0,防止固定定位高度被拉伸,保证 offsetHeight 为内容高度
+    waifu.style.right = "auto"; // 覆盖样式表 right: 0,防止水平双锚拉伸
     const maxLeft = Math.max(0, window.innerWidth - waifu.offsetWidth);
     const maxTop = Math.max(0, window.innerHeight - waifu.offsetHeight);
     waifu.style.left = `${Math.min(Math.max(saved.left, 0), maxLeft)}px`;
@@ -100,11 +109,18 @@ function bindPositionPersistence() {
   const bindTouchDrag = (waifu: HTMLElement) => {
     const canvas = document.getElementById("live2d");
     if (!canvas) return;
+    canvas.addEventListener("mousedown", () => {
+      // 已有内联 left 时才清右/下锚(防双锚拉伸);无内联 left 时全 auto 会把元素瞬移到文档末尾
+      if (!waifu.style.left) return;
+      waifu.style.right = "auto";
+      waifu.style.bottom = "auto";
+    });
     canvas.addEventListener(
       "touchstart",
       (e: TouchEvent) => {
         if (e.touches.length !== 1) return;
         waifu.style.bottom = "auto"; // 防止拉伸:保证本帧起 offsetHeight 为内容高度
+        waifu.style.right = "auto"; // 防止水平双锚拉伸:保证本帧起 offsetWidth 为内容宽度
         const touch = e.touches[0];
         const rect = waifu.getBoundingClientRect();
         const dx = touch.clientX - rect.left;
