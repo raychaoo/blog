@@ -27,7 +27,7 @@ export default function Hero({ name }: HeroProps) {
   return (
     <section className="hero-section">
       <div className="hero-lanyard">
-        <Lanyard frontImage={cardFront} cardScale={3.8} position={[0, 0, 30]} gravity={[0, -40, 0]} fov={20} />
+        <Lanyard frontImage={cardFront} cardScale={7.0} position={[0, 0, 30]} gravity={[0, -40, 0]} fov={20} />
       </div>
     </section>
   );

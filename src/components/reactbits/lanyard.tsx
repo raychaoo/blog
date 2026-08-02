@@ -84,7 +84,13 @@ export default function Lanyard({
   }, []);
 
   return (
-    <div className="relative z-0 w-full h-screen flex justify-center items-center transform scale-100 origin-center [touch-action:none]">
+    // Height is driven by the inherited --lanyard-height custom property
+    // (defaults to 100vh, i.e. the original full-screen behavior) so the
+    // homepage split layout can size the canvas to its column.
+    <div
+      className="relative z-0 w-full flex justify-center items-center transform scale-100 origin-center [touch-action:none]"
+      style={{ height: "var(--lanyard-height, 100vh)" }}
+    >
       <Canvas
         camera={{ position, fov }}
         dpr={[1, isMobile ? 1.5 : 2]}

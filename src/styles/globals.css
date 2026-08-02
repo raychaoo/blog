@@ -780,11 +780,23 @@ button:focus-visible:not(:focus-visible) {
 
 /* ── Hero (homepage) ── */
 .hero-section {
-  display: block;
+  height: 100%;
+  min-height: 0;
 }
 .hero-lanyard {
-  height: clamp(480px, calc(100dvh - 56px), 880px);
-  min-height: 480px;
+  /* --lanyard-height 同时驱动 Lanyard 内部画布高度(默认回退 100vh);
+     高度 = 100dvh - 头部(56px) - 安全余量(16px):页面恰好比一屏短,
+     任何 1px 级溢出(头部边线、subpixel 舍入、粒子摆动)都不会顶出滚动条 */
+  --lanyard-height: calc(100dvh - 72px);
+  height: var(--lanyard-height);
+  min-height: 0;
+  overflow: hidden;
+}
+/* 移动端头部为两行(约 94px),余量相应加大 */
+@media (max-width: 639px) {
+  .hero-lanyard {
+    --lanyard-height: calc(100dvh - 116px);
+  }
 }
 
 .btn-press:active {
