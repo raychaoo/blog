@@ -1,6 +1,6 @@
 /* eslint-disable react/no-unknown-property */
 'use client';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import { Canvas, extend, useFrame, type ThreeElement, type ThreeEvent } from '@react-three/fiber';
 import { useGLTF, useTexture, Environment, Lightformer } from '@react-three/drei';
 import {
@@ -99,15 +99,21 @@ export default function Lanyard({
       >
         <ambientLight intensity={Math.PI} />
         <Physics gravity={gravity} timeStep={isMobile ? 1 / 30 : 1 / 60}>
-          <Band
-            isMobile={isMobile}
-            frontImage={frontImage}
-            backImage={backImage}
-            imageFit={imageFit}
-            lanyardImage={lanyardImage}
-            lanyardWidth={lanyardWidth}
-            cardScale={scaled}
-          />
+          {/* 纹理 URL 变化(frontImage 随主题重生成)会让 useTexture 挂起;若不加这个
+              Suspense 边界,挂起会经 CanvasImpl 的 block-throw 逃逸出 Canvas,
+              导致切换主题时整个应用树被隐藏重渲,观感像页面重新加载。
+              包在 Physics 内:挂起只影响 Band 自身,物理世界与画布保持存活。 */}
+          <Suspense fallback={null}>
+            <Band
+              isMobile={isMobile}
+              frontImage={frontImage}
+              backImage={backImage}
+              imageFit={imageFit}
+              lanyardImage={lanyardImage}
+              lanyardWidth={lanyardWidth}
+              cardScale={scaled}
+            />
+          </Suspense>
         </Physics>
         <Environment blur={0.75}>
           <Lightformer
