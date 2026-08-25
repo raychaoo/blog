@@ -23,12 +23,16 @@
 ```
 content/
 ├── posts/{slug}/index.mdx          # 文章 MDX(frontmatter)
+│   └── (图片放 public/posts/{slug}/,见「内容图片约定」)
 └── thoughts/{slug}/index.mdx       # 碎碎念念(frontmatter: title, date)
+    └── (图片放 public/thoughts/{slug}/,见「内容图片约定」)
 public/
 ├── fonts/                          # 自托管阿里巴巴普惠体 WOFF2
 ├── lanyard/                        # Lanyard 的 card.glb + 图片资源
 ├── live2d/                         # 自托管 live2d-widget v1 + 3 个模型(完全静态)
-└── live2d-api/                     # 自托管 live2d API 静态树(模型/切换配置)
+├── live2d-api/                     # 自托管 live2d API 静态树(模型/切换配置)
+├── posts/{slug}/                   # 文章配图(与 content/posts 同 slug 镜像)
+└── thoughts/{slug}/                # 碎碎念念配图(与 content/thoughts 同 slug 镜像)
 src/
 ├── app/
 │   ├── layout.tsx                  # 根布局:BlogThemeProvider + ProgressBar + GooeyNav 头部 + Live2dMascot
@@ -113,6 +117,7 @@ src/
 - **Tailwind v4** 用 `@import "tailwindcss"` + `@theme`,无 `tailwind.config.ts`
 - **字体**:阿里巴巴普惠体 3.0 — `globals.css` 里 `@font-face` 自托管,`--font-sans` 与 `--font-heading` 都用它
 - **MDX 管线**用 `unified`(remark-parse → remark-gfm → remark-rehype → rehype-slug → rehype-autolink-headings → rehype-pretty-code → rehype-stringify)
+- **内容图片约定**:文章/碎碎念念的图片放 `public/posts/{slug}/`、`public/thoughts/{slug}/`(与 content 目录同 slug 镜像),正文中用绝对路径标准 Markdown 引用,如 `![描述](/thoughts/my-slug/cover.png)`。原因:静态导出 + unified 管线无 `@next/mdx` 图片导入能力,只能走 `public/` 静态资源;按 slug 建子目录便于整目录删除与互不干扰。文件名用 kebab-case 纯 ASCII,避免 URL 编码问题。`.prose img` 已有圆角/边框/自适应样式,无需额外处理
 - **ReactBits 配色必须走 `useAccentColors`/CSS 变量** — 动效组件禁止硬编码 hex;把 accent 族/CSS 变量传进去,主题切换时重渲染
 - **颜色系统**:6 个 accent 色(indigo/violet/pink/cyan/emerald/amber)经主题 CSS 变量在标签与装饰元素间轮换
 - **ChromaGrid 区域背景与 body 一致** — 两层区域级调暗遮罩已删除;卡片悬停光斑用 `color-mix(var(--color-accent) 18%)`,卡片渐变用 28% accent 稀释到 `--card-bg`
