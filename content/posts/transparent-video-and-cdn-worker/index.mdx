@@ -1,0 +1,156 @@
+---
+title: "上线踩坑复盘：透明背景视频的 WebGL 上下文治理与 CDN Worker 跨域"
+date: "2026-08-23"
+description: "记录一次业务上线中遇到的两类典型问题：用 WebGL/Canvas 播放透明背景视频时多上下文冲突的治理，以及前端包托管到 CDN 后 Worker 脚本跨域被拦的定位与解决。"
+tags: ["WebGL", "Canvas", "Worker", "CDN", "前端工程化"]
+---
+
+## 前言
+
+最近一次业务上线，前后踩了两类完全不同性质的坑：一类是**渲染层**的——透明背景视频在多端兼容与多实例之间的取舍；另一类是**部署架构**的——静态资源上 CDN 之后，某些"隐含同源约束"的浏览器能力突然不工作了。这里把背景、现象、根因和最终方案整理成文，希望能帮到遇到同样问题的同学。
+
+## 问题一：透明背景视频引发的 WebGL 上下文冲突
+
+### 背景：为什么需要 WebGL/Canvas 播透明视频
+
+需求是播放带透明通道的动效素材（比如数字人、装饰动画），直接叠在页面元素之上。常见方案对比：
+
+| 方案 | 兼容性 | 说明 |
+|------|--------|------|
+| `.webm` (VP9 + Alpha) 直接播放 | 仅 Chromium 系 | Chrome/Edge 原生支持带 alpha 的 webm；其他厂商内核不支持或表现不一致 |
+| WebGL Alpha Video | 主流现代浏览器 | 用 webgl 把视频帧绘制到画布上，手动抠出 alpha 通道 |
+| Canvas 兜底 | 全量兜底 | 不支持 WebGL 时退化为 Canvas 绘制 |
+
+所以整体策略是三层递进：
+
+```text
+Chromium 内核        → 直接播 webm（原生 alpha）
+支持 WebGL 的浏览器  → WebGL Alpha Video
+其余                 → Canvas 兜底
+```
+
+### 现象：列表一多，画面集体"罢工"
+
+初版实现很直接：封装了一个 `AlphaVideo` 组件，内部自建 WebGL 渲染器，然后在页面里循环渲染：
+
+```tsx
+// ❌ 初版：列表每一项都各自声明一个 WebGL 上下文
+{
+  list.map((item) => (
+    <AlphaVideo key={item.id} src={item.webm} />
+  ));
+}
+```
+
+单屏只有一两个时一切正常；一旦列表项多起来，就出现了诡异的**上下文问题**——部分卡片画面变黑、动效卡死，控制台还会报 `webglcontextlost`。
+
+### 根因：浏览器的 WebGL 上下文数量上限
+
+这不是我们代码的 bug，而是浏览器的硬约束：
+
+- 浏览器为单个页面分配的 WebGL 上下文数量有上限（Chrome 一般是 **16 个**左右，各内核略有差异）；
+- 超出上限后，**最早创建的上下文会被静默丢弃**（context lost），对应画布直接失效；
+- 每个上下文都是一份不小的 GPU 资源开销，即使不丢，十几个 WebGL 同时跑也是灾难性的性能负担。
+
+也就是说："每个列表项一个 WebGL"这个结构从设计上就不成立。
+
+### 解决方案：active 单例 + 可见性驱动生命周期
+
+核心思路一句话：**全页只保留一个 WebGL 上下文，谁可见谁使用，不可见立即释放。**
+
+1. 用 `IntersectionObserver` 监听每个卡片是否进入视口；
+2. 只有处于可见状态（active）的项才挂载 WebGL 渲染；
+3. 不可见时卸载并释放上下文（`dispose()` + `forceContextLoss()`），同时展示一张静态封面图占位。
+
+```tsx
+// ✅ 改造后：仅可见项持有 WebGL 上下文
+function ActiveAlphaVideo({ src, poster }: { src: string; poster: string }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [active, setActive] = useState(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const io = new IntersectionObserver(
+      ([entry]) => setActive(entry.isIntersecting),
+      { threshold: 0.25 },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+
+  return (
+    <div ref={ref}>
+      {active ? <AlphaVideo src={src} /> : <img src={poster} alt="" />}
+    </div>
+  );
+}
+```
+
+改造后的收益是三重的：
+
+- **稳定性**：同一视口内通常只有个位数卡片可见，远低于上下文上限，不再触发 context lost；
+- **性能**：GPU 资源按需分配，滚动离开即归还，低端设备不再发烫；
+- **体验**：非可见项用静态封面过渡，滚动回来再无缝切回动效，用户几乎无感。
+
+## 问题二：包上 CDN 后，Worker 跨域被拦
+
+### 背景：前端静态资源托管 CDN
+
+项目基于 `umijs/max` 脚手架，为了加速访问，前端产物整体放在 CDN 上，打包时配置：
+
+```text
+publicPath: https://cdn.xxx.com/cdn-sbme-www/sbme/
+```
+
+站点本体跑在 `https://www.xxx.com`。日常的 js、css、图片从 CDN 加载都没有任何问题。
+
+### 现象：构造 Worker 直接抛 SecurityError
+
+但某些页面调用了 **Web Worker**，一进入这些页面控制台就报错：
+
+```text
+SecurityError: Failed to construct 'Worker':
+Script at 'https://cdn.xxx.com/cdn-sbme-www/sbme/9058.9d26fe4c.async.js'
+cannot be accessed from origin 'https://www.xxx.com'.
+```
+
+奇怪的是，这个 js 文件用浏览器直接打开、或者当作普通脚本加载都完全正常——为什么唯独 Worker 不行？
+
+### 根因：Worker 走的是同源策略，不是 CORS
+
+关键认知差在这里：
+
+- `<script>` 标签加载脚本是允许跨域的（这也是 CDN 方案能成立的前提），顶多做 SRI 校验；
+- 但 `new Worker(url)` **要求脚本与当前页面同源**——这是写进规范的硬性限制，即使 CDN 配置了完整的 CORS 响应头也不放行（经典 Worker 如此）。
+
+而打包器生成 worker chunk 时默认跟随全局 `publicPath`，于是 worker 脚本的地址变成了 CDN 域名，跨域，构造失败。
+
+### 解决方案：worker 产物不走 CDN
+
+既然 Worker 必须同源，那就让这一类产物留在主站域名下。在 umijs 配置中对 worker 的产物单独指定同源路径，使其不继承 CDN 的 `publicPath`：
+
+```ts
+// .umirc.ts / config/config.ts（思路示意，具体写法随构建器版本而异）
+export default {
+  publicPath: "https://cdn.xxx.com/cdn-sbme-www/sbme/",
+  chainWebpack(config) {
+    // worker chunk 单独指定同源路径，绕开全局 CDN publicPath
+    config.output.set("workerPublicPath", "/");
+  },
+};
+```
+
+改完后 worker 脚本从 `https://www.xxx.com/xxx.async.js` 加载，同源，构造成功。
+
+> 备选方案是做一个**同源的 shim worker**，在内部用 `fetch` + blob URL 动态加载 CDN 上的脚本（这条路依赖 CDN 的 CORS 头）。能用，但链路更长、调试更绕；我们的场景下让 worker 产物直连主站是最简单可靠的解法。
+
+## 总结
+
+两个问题看似无关，背后其实是同一个母题：**浏览器的安全与资源模型里，藏着不少"默认假设"，部署形态一变，假设就会失效。**
+
+1. **WebGL 上下文是稀缺资源**：单页上限约 16 个且超限静默丢失最旧的。列表类场景必须共享单例、按可见性管理生命周期，绝不能"一项一上下文"。
+2. **Worker 加载遵循同源策略而非 CORS**：`<script>` 能跨域不代表 Worker 能。资源上 CDN 之前，先盘点哪些能力是"同源语义"加载的——Worker、`importScripts`、Service Worker 都在此列，提前规划它们的产物路径。
+3. **兜底分层要一开始就设计好**：webm 原生 → WebGL → Canvas 的三层降级，让兼容性问题不再阻塞功能交付。
+
+上线不是终点，而是把代码放到真实环境里重新认识一遍浏览器的开始。
