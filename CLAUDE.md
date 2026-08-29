@@ -45,15 +45,16 @@ src/
 │   ├── rss.xml/route.ts            # RSS 订阅
 │   └── api/search/route.ts         # 搜索索引 API(dynamic = "force-static",构建时生成 {posts, thoughts})
 ├── components/
-│   ├── home/                       # home-client.tsx(客户端包装)+ hero.tsx(单个 Lanyard)+ github-contributions.tsx
-│   ├── nav/header.tsx              # 站点头部(server 组件,承载 GooeyNav)
-│   ├── live2d/live2d-mascot.tsx    # 全局看板娘(延迟懒加载 /live2d,拖动 + 位置记忆,移动端画布 180px + 触摸拖动)
+│   ├── home/                       # home-client.tsx(客户端包装)+ hero.tsx(单个 Lanyard,移动端相机对齐卡片居中)+ github-contributions.tsx
+│   ├── nav/header.tsx              # 站点头部(server 组件,承载 GooeyNav;搜索入口全路由常显)
+│   ├── nav/footer.tsx              # 站点 footer(版权 + GitHub + RSS)+ github-mark.tsx(内联 GitHub 标志)
+│   ├── live2d/live2d-mascot.tsx    # 全局看板娘(延迟懒加载 /live2d,拖动 + 位置记忆;桌面默认左下角,移动端默认收起为左缘开关)
 │   ├── mdx/                        # toc.tsx、progress-bar.tsx、giscus.tsx、giscus-dynamic.tsx、code-enhancer.tsx
-│   ├── posts/                      # posts-client.tsx(搜索 + 标签筛选 + 网格)+ article-card.tsx
-│   ├── thoughts/thoughts-client.tsx# 碎碎念列表客户端(轮盘即列表 + 滚动恢复)
-│   ├── reactbits/                  # 自托管 ReactBits:gooey-nav、lanyard、option-wheel、chroma-grid、
+│   ├── posts/                      # posts-client.tsx(规整两列网格 + 滚动恢复)+ article-card.tsx(标题优先 + 紧凑日期 + 中性标签)
+│   ├── thoughts/thoughts-client.tsx# 碎碎念列表客户端(默认时间线列表,可切换轮盘视图,localStorage "thoughts-view")
+│   ├── reactbits/                  # 自托管 ReactBits:gooey-nav、lanyard、option-wheel、chroma-grid(已无页面使用,保留)、
 │   │                               #   split-text、text-type、shuffle、scroll-float(仅最小扩展,见约定)
-│   ├── search/search.tsx           # 搜索弹窗(fuse.js,/posts 与 /thoughts 共用)
+│   ├── search/search.tsx           # 搜索弹窗(fuse.js,全站共用,头部常显)
 │   └── theme/                      # theme-provider.tsx(上下文)+ theme-picker.tsx(下拉)
 ├── lib/
 │   ├── posts.ts                    # 解析 frontmatter、文章列表/筛选/标签、预计阅读时长
@@ -70,21 +71,21 @@ src/
 
 | 路由 | 用途 |
 |------|------|
-| `/` | 首页 — 单个居中放大的 Lanyard 3D 挂绳卡(介绍文案烘焙进卡片正面,见 `card-face.ts`)+ 下方「关于我」资料卡(GitHub 头像、文章/标签/始于统计、贡献图)。无文章列表、无搜索框。 |
-| `/posts` | 文章列表 — ChromaGrid 网格(区域背景与 body 一致)、标签筛选胶囊、Fuse.js 搜索、滚动位置恢复(`posts-scroll`)。 |
-| `/posts/[slug]` | 文章详情 — SplitText 标题、meta 错峰淡入、标签为 `<span>`、Giscus 评论、页面切换动效。 |
-| `/thoughts` | 碎碎念 — 轮盘即列表:整页一个 OptionWheel,每项为标题+时间+预览富卡片,滚动切高亮、点击进详情;返回时从上次点击处平滑恢复。 |
+| `/` | 首页 — 两段式:上段 hero(单个 Lanyard,高 `clamp(420px, 78dvh-56px, 700px)`,文案烘焙进卡片正面见 `card-face.ts`,底色/前景随主题,底部滚动指示箭头 + sr-only 等价文本)+ 下段「关于我」资料卡(头像、统计、GitHub/RSS 链接、简介、贡献图)+「最近更新」5 条文章列表。移动端 Lanyard 相机 x 对齐卡片静止位(x=2)使卡片居中。 |
+| `/posts` | 文章列表 — 规整两列卡片网格(`max-w-4xl`),卡片顺序:标题 → 描述 → meta 行(紧凑日期 + 中性标签胶囊);Fuse.js 搜索(头部常显)、滚动位置恢复(`posts-scroll`)。 |
+| `/posts/[slug]` | 文章详情 — SplitText 标题、meta 错峰淡入、中性标签、底部上一篇/下一篇导航(`findAdjacentPosts`)、Giscus 评论、页面切换动效。 |
+| `/thoughts` | 碎碎念 — 默认时间线列表(左日期列 + 卡片行,一屏可扫全),右上角「列表/轮盘」分段切换(偏好存 localStorage `thoughts-view`);轮盘为 OptionWheel 富卡片;两个视图都支持从详情返回恢复到上次点击条目。 |
 | `/thoughts/[slug]` | 碎碎念详情 — 标题动效、MDX 渲染、Giscus 评论、返回链接。 |
 
 ## 布局
 
-全站为**单个全局 GooeyNav 粘性头部 + 全宽内容**布局:
+全站为**单个全局 GooeyNav 粘性头部 + 全宽内容 + 站点 footer** 布局:
 
-1. **全局头部**([src/components/nav/header.tsx](src/components/nav/header.tsx)):粘性 ReactBits GooeyNav,链接到 `/posts` 与 `/thoughts`(搜索入口按路由显隐,仅 /posts 与 /thoughts 显示)。
-2. **首页**:自上而下为 hero(单个 Lanyard,文案烘焙进卡片,单栏布局 `clamp(480px, 100dvh - 56px, 880px)`)+「关于我」资料卡(GitHub 头像/统计/贡献图),全宽,无侧边栏、无文章列表、无搜索。
-3. **文章/碎碎念页**:全宽内容流,右侧粘性 MDX 目录(TOC),顶部阅读进度条,底部 Giscus 评论。
+1. **全局头部**([src/components/nav/header.tsx](src/components/nav/header.tsx)):粘性 ReactBits GooeyNav,链接到 `/posts` 与 `/thoughts`;搜索入口(⌘K)与主题切换全路由常显。
+2. **首页**:两段式 — hero(单个 Lanyard,约 78dvh,文案烘焙进卡片)+「关于我」资料卡(头像/统计/链接/简介/贡献图)+「最近更新」列表,单栏 `max-w-4xl`,无侧边栏。
+3. **文章/碎碎念页**:全宽内容流,右侧粘性 MDX 目录(TOC),顶部阅读进度条,文章详情底部有上一篇/下一篇导航,全站底部 footer(版权 + GitHub + RSS)。
 
-无历史侧边栏;个人资料位于首页「关于我」资料卡。
+无历史侧边栏;个人资料位于首页「关于我」区。
 
 ## 主题系统(自研,无 next-themes)
 
@@ -101,7 +102,7 @@ src/
 
 **重要**:所有主题相关颜色都走 CSS 变量(`var(--bg-color)`、`var(--fg-color)`、`var(--color-accent)` 等),不用 Tailwind 主题 token;`@theme inline` 只定义交互/装饰 token。
 
-每套主题定义 **6 色 accent 族** CSS 变量:`--color-accent` + `--color-accent-violet|pink|cyan|emerald|amber`。需要 JS 驱动颜色属性(GSAP 粒子色、Three.js 材质、ChromaGrid)的组件通过 `@/lib/accent-colors` 的 `useAccentColors()` / `readAccentColors()` 运行时读取,主题切换时重渲染。
+每套主题定义 **6 色 accent 族** CSS 变量:`--color-accent` + `--color-accent-violet|pink|cyan|emerald|amber`。需要 JS 驱动颜色属性(GSAP 粒子色、Three.js 材质、Lanyard 卡面)的组件通过 `@/lib/accent-colors` 的 `useAccentColors()` / `readAccentColors()` 运行时读取(额外含 `bg` = `--card-bg`、`fg` = `--fg-color`),主题切换时重渲染。
 
 ## 构建与部署
 
@@ -119,15 +120,16 @@ src/
 - **MDX 管线**用 `unified`(remark-parse → remark-gfm → remark-rehype → rehype-slug → rehype-autolink-headings → rehype-pretty-code → rehype-stringify)
 - **内容图片约定**:文章/碎碎念的图片放 `public/posts/{slug}/`、`public/thoughts/{slug}/`(与 content 目录同 slug 镜像),正文中用绝对路径标准 Markdown 引用,如 `![描述](/thoughts/my-slug/cover.png)`。原因:静态导出 + unified 管线无 `@next/mdx` 图片导入能力,只能走 `public/` 静态资源;按 slug 建子目录便于整目录删除与互不干扰。文件名用 kebab-case 纯 ASCII,避免 URL 编码问题。`.prose img` 已有圆角/边框/自适应样式,无需额外处理
 - **ReactBits 配色必须走 `useAccentColors`/CSS 变量** — 动效组件禁止硬编码 hex;把 accent 族/CSS 变量传进去,主题切换时重渲染
-- **颜色系统**:6 个 accent 色(indigo/violet/pink/cyan/emerald/amber)经主题 CSS 变量在标签与装饰元素间轮换
-- **ChromaGrid 区域背景与 body 一致** — 两层区域级调暗遮罩已删除;卡片悬停光斑用 `color-mix(var(--color-accent) 18%)`,卡片渐变用 28% accent 稀释到 `--card-bg`
+- **颜色系统**:6 个 accent 色(indigo/violet/pink/cyan/emerald/amber)经主题 CSS 变量在装饰元素间轮换;列表卡片标签统一中性样式(`tag-pill` 默认态),不做多彩轮换,避免视觉噪声
+- **文章卡悬停只做上浮 + 边框靠拢 accent + 中性阴影加深**,不做彩色光晕/渐变条(`.article-card`)
+- **看板娘默认位在左下角**(waifu.css 原生 `left:0`,不注入右下角覆盖);移动端(≤767px)加载时写 `localStorage("waifu-display")` 使 widget 默认收起为左缘开关,点击展开;`#waifu-toggle` 的右缘镜像覆盖已从 globals.css 移除
 - **ReactBits vendor 边界**:官方组件只做最小扩展(加 prop、不改默认行为),如 OptionWheel 新增 `initialScrollTo`(返回位置恢复)/`onItemClick`(仅显式点击)/`renderItem`(富卡片);live2d-widget 编译文件一律不修改
 - **Live2D 全自托管静态** — 无外部 CDN。mascot 延迟 1.5s 后从 `/live2d` 懒加载 `waifu-tips.js` + `waifu.css`;可拖动(鼠标 + 触摸),位置持久化到 `localStorage("waifu-position")` 跨页/刷新保持;3 个可循环切换模型(shizuku/Pio/Tia,Cubism 2,切换有对应欢迎语);带 `hitokoto`/`photo`/`info`/`quit` 工具;768px 以下画布收窄为 180px(`!important` 覆盖 waifu.css)+ `touch-action: none` 触摸拖动
 
 ## 测试与门禁
 
 - `pnpm test` 只覆盖**纯逻辑** TDD(vitest,`environment: "node"`,include `src/**/*.test.ts`);jsdom@26 仅在组件真需要 DOM 时按需加,现有测试全部走 Node 环境
-- 现有测试:`src/lib/__tests__/`(accent-colors / card-face / posts / thoughts)+ `src/app/api/search/__tests__/route.test.ts`
+- 现有测试:`src/lib/__tests__/`(accent-colors / card-face / posts / thoughts)+ `src/app/api/search/__tests__/route.test.ts`;`findAdjacentPosts`(上一篇/下一篇)与 `extractPreview` 的 Markdown 剥离均有覆盖
 - UI/动效无单测先例,以 `pnpm build` + 手工验证清单(curl 冒烟 + 浏览器核对)为门禁
 - `pnpm lint` 仓库基线已坏(历史遗留),只在改到相关文件时自查
 
