@@ -134,9 +134,10 @@ src/
 ## 命令
 
 ```bash
-pnpm dev       # 开发服务器(热更新)
+pnpm dev       # 开发服务器(热更新;3000 被占自动递增,见 scripts/find-port.mjs)
 pnpm build     # 生产构建(静态导出到 out/)
-pnpm start     # 生产服务器
+pnpm start     # 静态预览 out/(output:'export' 下 next start 不可用;端口同样自动递增)
+pnpm preview   # 重新构建 + 静态预览(next build && pnpm start)
 pnpm test      # Vitest 单测(lib + 搜索路由)
 pnpm lint      # ESLint(仓库基线已坏,只自查改动文件)
 ```
