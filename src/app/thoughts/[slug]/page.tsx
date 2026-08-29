@@ -57,7 +57,7 @@ export default async function ThoughtPage({ params }: ThoughtPageProps) {
         className="btn-press inline-flex touch-target items-center gap-1.5 text-xs text-muted-fg hover:text-[var(--color-accent)] transition-colors mb-6"
       >
         <ArrowLeft size={14} />
-        返回碎碎念念
+        返回碎碎念
       </Link>
 
       <header className="mb-8">

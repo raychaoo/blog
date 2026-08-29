@@ -181,7 +181,7 @@ export default function SearchModal() {
                 value={query}
                 onChange={(e) => handleSearch(e.target.value)}
                 onKeyDown={handleKeyDown}
-                placeholder="搜索文章 / 碎碎念念"
+                placeholder="搜索文章 / 碎碎念"
                 autoComplete="off"
                 spellCheck={false}
                 className="flex-1 bg-transparent text-[15px] text-fg outline-none placeholder:text-muted-fg/60"
@@ -266,7 +266,7 @@ export default function SearchModal() {
                           <div className="flex items-center gap-2.5 mt-1.5">
                             <span className="inline-flex items-center gap-1 text-[11px] text-muted-fg/60">
                               <FileText size={10} />
-                              {doc.type === "thoughts" ? "碎碎念念" : "文章"}
+                              {doc.type === "thoughts" ? "碎碎念" : "文章"}
                             </span>
                             {doc.date && (
                               <span className="inline-flex items-center gap-1 text-[11px] text-muted-fg/60">

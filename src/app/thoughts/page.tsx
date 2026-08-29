@@ -4,7 +4,7 @@ import ThoughtsClient from "@/components/thoughts/thoughts-client";
 import type { ThoughtMeta } from "@/lib/thoughts";
 
 export const metadata: Metadata = {
-  title: "碎碎念念",
+  title: "碎碎念",
   description: "碎片化的想法与日常记录",
 };
 

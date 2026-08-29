@@ -3,11 +3,11 @@
 ## [Unreleased] (0.2.0)
 
 ### 新增
-- **全站重构**为「首页纯个人介绍 + 独立文章页 + 碎碎念念页 + 全局看板娘」的动效增强型站点,目录按职责重分组(`src/components/{nav, theme, search, home, posts, thoughts, mdx, live2d, reactbits}/`)
+- **全站重构**为「首页纯个人介绍 + 独立文章页 + 碎碎念页 + 全局看板娘」的动效增强型站点,目录按职责重分组(`src/components/{nav, theme, search, home, posts, thoughts, mdx, live2d, reactbits}/`)
 - **自托管 8 个 ReactBits 动效组件**:gooey-nav、lanyard、option-wheel、chroma-grid、split-text、text-type、shuffle、scroll-float,配色统一走主题 CSS 变量
 - **首页**:单个居中放大的 Lanyard 3D 挂绳卡(介绍文案烘焙进卡片正面,`card-face.ts` 生成 480×724 SVG,含贪心换行与 XML 转义)+「关于我」资料卡(GitHub 头像、文章/标签/始于统计、贡献图)
 - **/posts 文章列表页**:ChromaGrid 网格背景、标签筛选、Fuse.js 搜索、滚动位置恢复
-- **/thoughts 碎碎念念**:OptionWheel 轮盘转列表(标题 + 时间 + 3 行预览富卡片,滚动切高亮、点击进详情)
+- **/thoughts 碎碎念**:OptionWheel 轮盘转列表(标题 + 时间 + 3 行预览富卡片,滚动切高亮、点击进详情)
 - **/thoughts/[slug] 详情页**:与文章共用 Giscus 评论
 - **搜索**:/posts 与 /thoughts 共用搜索弹窗,`/api/search` 构建期生成 `{posts, thoughts}` 双索引
 - **全局 Live2D 看板娘**:自托管 waifu-tips(1.5s 延迟懒加载),含 hitokoto/photo/info/quit 工具
@@ -22,8 +22,8 @@
 - Lanyard 主题切换崩溃(cardFront 依赖收窄为 name,纹理合成失败回退原始贴图)
 - ChromaGrid 区域背景与 body 完全一致(移除两层区域级调暗遮罩)
 - ChromaGrid 光斑与卡片渐变柔和化(`color-mix` 稀释 accent,主题和谐)
-- 碎碎念念轮盘重定向循环(`defaultSelected` 归零 + 扩展 `onItemClick` 仅显式点击触发)
-- 碎碎念念轮盘返回位置恢复(sessionStorage 存 slug + OptionWheel `initialScrollTo` 一次性平滑恢复)
+- 碎碎念轮盘重定向循环(`defaultSelected` 归零 + 扩展 `onItemClick` 仅显式点击触发)
+- 碎碎念轮盘返回位置恢复(sessionStorage 存 slug + OptionWheel `initialScrollTo` 一次性平滑恢复)
 - Live2D 移动端拖动抖动(触摸位移钳制)与 touchcancel 监听泄漏
 - 文章详情返回链接、跨任务导航与导航主题化
 

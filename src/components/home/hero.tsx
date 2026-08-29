@@ -11,7 +11,7 @@ const Lanyard = dynamic(() => import("@/components/reactbits/lanyard"), {
 });
 
 const TAGLINE = "全栈开发者 · 热爱 React 与 TypeScript · 记录技术学习与思考";
-const INTRO = "记录前端工程化、React 生态与开发效率的实践，有长文，也有碎碎念念。";
+const INTRO = "记录前端工程化、React 生态与开发效率的实践，有长文，也有碎碎念。";
 
 interface HeroProps {
   name: string;

@@ -10,7 +10,7 @@ import { useAccentColors } from "@/lib/accent-colors";
 const NAV_ITEMS = [
   { label: "首页", href: "/" },
   { label: "文章", href: "/posts" },
-  { label: "碎碎念念", href: "/thoughts" },
+  { label: "碎碎念", href: "/thoughts" },
 ];
 
 function getActiveIndex(pathname: string): number {

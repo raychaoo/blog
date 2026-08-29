@@ -2,7 +2,7 @@ import { describe, it, expect } from "vitest";
 import { buildCardFrontSvg, textWidth, wrapLines } from "../card-face";
 
 const TAGLINE = "全栈开发者 · 热爱 React 与 TypeScript · 记录技术学习与思考";
-const INTRO = "记录前端工程化、React 生态与开发效率的实践，有长文，也有碎碎念念。";
+const INTRO = "记录前端工程化、React 生态与开发效率的实践，有长文，也有碎碎念。";
 
 function decodeSvg(url: string): string {
   const prefix = "data:image/svg+xml;charset=utf-8,";
@@ -21,7 +21,7 @@ describe("wrapLines", () => {
   it("breaks CJK runs at maxWidth without splitting a trailing fullwidth comma", () => {
     expect(wrapLines(INTRO, 23)).toEqual([
       "记录前端工程化、React 生态与开发效率的实践，",
-      "有长文，也有碎碎念念。",
+      "有长文，也有碎碎念。",
     ]);
   });
 
@@ -34,7 +34,7 @@ describe("wrapLines width invariant", () => {
   const corpus = [
     "TypeScript",
     "全栈开发者 · 热爱 React 与 TypeScript · 记录技术学习与思考",
-    "记录前端工程化、React 生态与开发效率的实践，有长文，也有碎碎念念。",
+    "记录前端工程化、React 生态与开发效率的实践，有长文，也有碎碎念。",
     "一二三四五六七八九十",
     "a b c d e f g",
     "，，，，，，，，，，，，，，",
@@ -68,7 +68,7 @@ describe("buildCardFrontSvg", () => {
     expect(svg).toContain("你好，我是 koko");
     expect(svg).toContain("全栈开发者 · 热爱 React 与 TypeScript");
     expect(svg).toContain("记录技术学习与思考");
-    expect(svg).toContain("有长文，也有碎碎念念。");
+    expect(svg).toContain("有长文，也有碎碎念。");
   });
 
   it("uses the provided accent for stroke and label", () => {

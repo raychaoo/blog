@@ -14,7 +14,7 @@
 | 2 | 验收问题修复 | 验收清单 `question.md`(未提交) | `plans/2026-08-01-fix-qa-issues.md`(已删) | ✅ 已落地(6 任务) |
 | 3 | Hero 内容烘焙进 Lanyard 卡片 | `specs/2026-08-01-hero-intro-into-lanyard-design.md`(已删) | `plans/2026-08-01-hero-intro-into-lanyard.md`(已删) | ✅ 已落地(4 任务) |
 | 4 | ChromaGrid 区域背景对齐 body | `specs/2026-08-01-chromagrid-region-background-design.md`(已删) | 无(直接实施) | ✅ 已落地 |
-| 5 | 碎碎念念轮盘返回位置恢复 | `specs/2026-08-01-thoughts-wheel-scroll-restore-design.md`(已删) | `plans/2026-08-01-thoughts-wheel-scroll-restore.md`(已删) | ✅ 已落地(3 任务) |
+| 5 | 碎碎念轮盘返回位置恢复 | `specs/2026-08-01-thoughts-wheel-scroll-restore-design.md`(已删) | `plans/2026-08-01-thoughts-wheel-scroll-restore.md`(已删) | ✅ 已落地(3 任务) |
 | 6 | 看板娘多模型切换 + 拖动 | `specs/2026-08-01-live2d-mascot-models-design.md`(已删) | `plans/2026-08-01-live2d-mascot-models.md`(已删) | ✅ 已落地(5 任务) |
 
 ---
@@ -23,13 +23,13 @@
 
 **原文件**:`plans/2026-08-01-blog-redesign.md`(已删除)
 
-**目标**:博客改造为「首页纯个人介绍 + 独立文章页 + 碎碎念念页 + 全局看板娘 Live2D」的动效增强型站点,并重构目录结构。
+**目标**:博客改造为「首页纯个人介绍 + 独立文章页 + 碎碎念页 + 全局看板娘 Live2D」的动效增强型站点,并重构目录结构。
 
 **核心架构决策**:
 - 目录抽离为按职责分组:`src/components/{nav, theme, search, home, posts, thoughts, mdx, live2d, reactbits}/`
 - 路由扩展:`/`(首页)、`/posts`、`/posts/[slug]`、`/thoughts`、`/thoughts/[slug]`
 - 从 DavidHDev/react-bits 自托管 8 个 ReactBits 动效组件到 `src/components/reactbits/`(gooey-nav / lanyard / chroma-grid / option-wheel / split-text / text-type / shuffle / scroll-float),配色统一走主题 CSS 变量
-- 碎碎念念与文章共用 unified MDX 管线与公共搜索组件(Fuse.js,`/api/search` 返回 `{posts, thoughts}` 双索引)
+- 碎碎念与文章共用 unified MDX 管线与公共搜索组件(Fuse.js,`/api/search` 返回 `{posts, thoughts}` 双索引)
 - Live2D 用 stevenjoezhang/live2d-widget v1 + Shizuku,全部自托管到 `public/`,以静态文件树驱动(无后端)
 - 引入 vitest,仅对纯逻辑(lib 函数、API 映射)做 TDD;UI/动画以 `pnpm build` + 手工验证为门禁
 
@@ -42,7 +42,7 @@
 6. 首页改造(SplitText 标题 + TextType tagline + Shuffle kicker + Lanyard 3D 挂绳卡 + 个人资料卡)
 7. `/posts` 文章列表(ChromaGrid 网格 + `posts-scroll` sessionStorage 滚动恢复)
 8. 公共搜索组件(先建 `src/lib/thoughts.ts` 最小骨架,依赖 Task 9)
-9. 碎碎念念内容层(`extractPreview` 摘要 + 2 篇样例内容,TDD)
+9. 碎碎念内容层(`extractPreview` 摘要 + 2 篇样例内容,TDD)
 10. `/thoughts` 列表页(OptionWheel 标题转轮 + Steps 风格时间线 + wheel-drop 入场动画)
 11. `/thoughts/[slug]` 详情页(与文章共用 Giscus 评论)
 12. 文章详情页动效(标题 SplitText、meta 错峰淡入、标签改 span、返回链接修正)
@@ -67,7 +67,7 @@
 | Lanyard 主题切换崩溃 | `cardFront` useMemo 依赖 `colors.accent`,主题切换 → SVG 变 → canvas 纹理重新合成崩溃 | `cardFront` 只依赖 `name`;lanyard.tsx 合成包 try/catch 回退原始纹理 |
 | 首页多余按钮 | hero-actions 与顶部导航重复 | 删除按钮区与 `.btn-primary/.btn-secondary` 样式,导航职责交给 GooeyNav |
 | ChromaGrid 卡片与背景对比过强 | 硬编码白色光斑 `rgba(255,255,255,0.3)` + 饱和 accent 渐变 | 光斑改 `color-mix(var(--color-accent) 18%)`,卡片渐变改 28% accent 稀释 → card-bg |
-| 碎碎念念重定向循环 | vendored OptionWheel `defaultSelected={3}` 与 2 条内容不匹配,挂载时触发 onChange → router.push;任何滚动也触发导航 | `defaultSelected={0}` + 扩展组件加 `onItemClick`(仅显式点击)+ `renderItem`;页面不传 `onChange` |
+| 碎碎念重定向循环 | vendored OptionWheel `defaultSelected={3}` 与 2 条内容不匹配,挂载时触发 onChange → router.push;任何滚动也触发导航 | `defaultSelected={0}` + 扩展组件加 `onItemClick`(仅显式点击)+ `renderItem`;页面不传 `onChange` |
 | OptionWheel 列表效果 | 原生行为与需求不符 | 重构为「轮盘即列表」:整页一个 OptionWheel,每项为标题+时间+预览富卡片,滚动只切高亮、点击才进详情 |
 
 **任务结构**:1) Lanyard 修复 + 容器尺寸对齐 demo(`clamp(360px, 52vh, 560px)`);2) 移除 hero-actions;3) ChromaGrid 柔和化;4) 扩展 OptionWheel(2 个新 prop);5) `/thoughts` 重构为轮盘即列表(删时间线样式,加 `.thoughts-wheel-card`);6) 全站回归 + 路由冒烟表(7 条路由断言)。
@@ -119,7 +119,7 @@
 
 ---
 
-## 5. 碎碎念念轮盘返回位置恢复
+## 5. 碎碎念轮盘返回位置恢复
 
 **原文件**:`specs/2026-08-01-thoughts-wheel-scroll-restore-design.md`、`plans/2026-08-01-thoughts-wheel-scroll-restore.md`(已删除)
 

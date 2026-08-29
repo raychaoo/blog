@@ -24,7 +24,7 @@
 content/
 ├── posts/{slug}/index.mdx          # 文章 MDX(frontmatter)
 │   └── (图片放 public/posts/{slug}/,见「内容图片约定」)
-└── thoughts/{slug}/index.mdx       # 碎碎念念(frontmatter: title, date)
+└── thoughts/{slug}/index.mdx       # 碎碎念(frontmatter: title, date)
     └── (图片放 public/thoughts/{slug}/,见「内容图片约定」)
 public/
 ├── fonts/                          # 自托管阿里巴巴普惠体 WOFF2
@@ -32,7 +32,7 @@ public/
 ├── live2d/                         # 自托管 live2d-widget v1 + 3 个模型(完全静态)
 ├── live2d-api/                     # 自托管 live2d API 静态树(模型/切换配置)
 ├── posts/{slug}/                   # 文章配图(与 content/posts 同 slug 镜像)
-└── thoughts/{slug}/                # 碎碎念念配图(与 content/thoughts 同 slug 镜像)
+└── thoughts/{slug}/                # 碎碎念配图(与 content/thoughts 同 slug 镜像)
 src/
 ├── app/
 │   ├── layout.tsx                  # 根布局:BlogThemeProvider + ProgressBar + GooeyNav 头部 + Live2dMascot
@@ -40,7 +40,7 @@ src/
 │   ├── posts/page.tsx              # /posts 文章网格(ChromaGrid 区域背景对齐 body、标签筛选、搜索、滚动恢复)
 │   ├── posts/[slug]/page.tsx       # 文章详情页
 │   ├── thoughts/page.tsx           # /thoughts 轮盘即列表(OptionWheel 富卡片 + 返回位置恢复)
-│   ├── thoughts/[slug]/page.tsx    # 碎碎念念详情页
+│   ├── thoughts/[slug]/page.tsx    # 碎碎念详情页
 │   ├── sitemap.ts                  # 自动生成 sitemap(/posts + /thoughts,force-static)
 │   ├── rss.xml/route.ts            # RSS 订阅
 │   └── api/search/route.ts         # 搜索索引 API(dynamic = "force-static",构建时生成 {posts, thoughts})
@@ -50,7 +50,7 @@ src/
 │   ├── live2d/live2d-mascot.tsx    # 全局看板娘(延迟懒加载 /live2d,拖动 + 位置记忆,移动端画布 180px + 触摸拖动)
 │   ├── mdx/                        # toc.tsx、progress-bar.tsx、giscus.tsx、giscus-dynamic.tsx、code-enhancer.tsx
 │   ├── posts/                      # posts-client.tsx(搜索 + 标签筛选 + 网格)+ article-card.tsx
-│   ├── thoughts/thoughts-client.tsx# 碎碎念念列表客户端(轮盘即列表 + 滚动恢复)
+│   ├── thoughts/thoughts-client.tsx# 碎碎念列表客户端(轮盘即列表 + 滚动恢复)
 │   ├── reactbits/                  # 自托管 ReactBits:gooey-nav、lanyard、option-wheel、chroma-grid、
 │   │                               #   split-text、text-type、shuffle、scroll-float(仅最小扩展,见约定)
 │   ├── search/search.tsx           # 搜索弹窗(fuse.js,/posts 与 /thoughts 共用)
@@ -73,8 +73,8 @@ src/
 | `/` | 首页 — 单个居中放大的 Lanyard 3D 挂绳卡(介绍文案烘焙进卡片正面,见 `card-face.ts`)+ 下方「关于我」资料卡(GitHub 头像、文章/标签/始于统计、贡献图)。无文章列表、无搜索框。 |
 | `/posts` | 文章列表 — ChromaGrid 网格(区域背景与 body 一致)、标签筛选胶囊、Fuse.js 搜索、滚动位置恢复(`posts-scroll`)。 |
 | `/posts/[slug]` | 文章详情 — SplitText 标题、meta 错峰淡入、标签为 `<span>`、Giscus 评论、页面切换动效。 |
-| `/thoughts` | 碎碎念念 — 轮盘即列表:整页一个 OptionWheel,每项为标题+时间+预览富卡片,滚动切高亮、点击进详情;返回时从上次点击处平滑恢复。 |
-| `/thoughts/[slug]` | 碎碎念念详情 — 标题动效、MDX 渲染、Giscus 评论、返回链接。 |
+| `/thoughts` | 碎碎念 — 轮盘即列表:整页一个 OptionWheel,每项为标题+时间+预览富卡片,滚动切高亮、点击进详情;返回时从上次点击处平滑恢复。 |
+| `/thoughts/[slug]` | 碎碎念详情 — 标题动效、MDX 渲染、Giscus 评论、返回链接。 |
 
 ## 布局
 
@@ -82,7 +82,7 @@ src/
 
 1. **全局头部**([src/components/nav/header.tsx](src/components/nav/header.tsx)):粘性 ReactBits GooeyNav,链接到 `/posts` 与 `/thoughts`(搜索入口按路由显隐,仅 /posts 与 /thoughts 显示)。
 2. **首页**:自上而下为 hero(单个 Lanyard,文案烘焙进卡片,单栏布局 `clamp(480px, 100dvh - 56px, 880px)`)+「关于我」资料卡(GitHub 头像/统计/贡献图),全宽,无侧边栏、无文章列表、无搜索。
-3. **文章/碎碎念念页**:全宽内容流,右侧粘性 MDX 目录(TOC),顶部阅读进度条,底部 Giscus 评论。
+3. **文章/碎碎念页**:全宽内容流,右侧粘性 MDX 目录(TOC),顶部阅读进度条,底部 Giscus 评论。
 
 无历史侧边栏;个人资料位于首页「关于我」资料卡。
 
@@ -117,7 +117,7 @@ src/
 - **Tailwind v4** 用 `@import "tailwindcss"` + `@theme`,无 `tailwind.config.ts`
 - **字体**:阿里巴巴普惠体 3.0 — `globals.css` 里 `@font-face` 自托管,`--font-sans` 与 `--font-heading` 都用它
 - **MDX 管线**用 `unified`(remark-parse → remark-gfm → remark-rehype → rehype-slug → rehype-autolink-headings → rehype-pretty-code → rehype-stringify)
-- **内容图片约定**:文章/碎碎念念的图片放 `public/posts/{slug}/`、`public/thoughts/{slug}/`(与 content 目录同 slug 镜像),正文中用绝对路径标准 Markdown 引用,如 `![描述](/thoughts/my-slug/cover.png)`。原因:静态导出 + unified 管线无 `@next/mdx` 图片导入能力,只能走 `public/` 静态资源;按 slug 建子目录便于整目录删除与互不干扰。文件名用 kebab-case 纯 ASCII,避免 URL 编码问题。`.prose img` 已有圆角/边框/自适应样式,无需额外处理
+- **内容图片约定**:文章/碎碎念的图片放 `public/posts/{slug}/`、`public/thoughts/{slug}/`(与 content 目录同 slug 镜像),正文中用绝对路径标准 Markdown 引用,如 `![描述](/thoughts/my-slug/cover.png)`。原因:静态导出 + unified 管线无 `@next/mdx` 图片导入能力,只能走 `public/` 静态资源;按 slug 建子目录便于整目录删除与互不干扰。文件名用 kebab-case 纯 ASCII,避免 URL 编码问题。`.prose img` 已有圆角/边框/自适应样式,无需额外处理
 - **ReactBits 配色必须走 `useAccentColors`/CSS 变量** — 动效组件禁止硬编码 hex;把 accent 族/CSS 变量传进去,主题切换时重渲染
 - **颜色系统**:6 个 accent 色(indigo/violet/pink/cyan/emerald/amber)经主题 CSS 变量在标签与装饰元素间轮换
 - **ChromaGrid 区域背景与 body 一致** — 两层区域级调暗遮罩已删除;卡片悬停光斑用 `color-mix(var(--color-accent) 18%)`,卡片渐变用 28% accent 稀释到 `--card-bg`

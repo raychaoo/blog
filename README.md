@@ -6,7 +6,7 @@
 
 - **首页**:单个居中放大的 Lanyard 3D 挂绳卡,介绍文案烘焙进卡片正面贴图;下方为「关于我」资料卡(GitHub 头像、文章/标签/始于统计、贡献图)
 - **文章页** `/posts`:ChromaGrid 网格背景、标签筛选、Fuse.js 模糊搜索、滚动位置恢复
-- **碎碎念念** `/thoughts`:整页 OptionWheel 轮盘即列表(富卡片,滚动切高亮、点击进详情),返回时平滑恢复上次位置
+- **碎碎念** `/thoughts`:整页 OptionWheel 轮盘即列表(富卡片,滚动切高亮、点击进详情),返回时平滑恢复上次位置
 - **全局看板娘**:自托管 Live2D,3 个模型(shizuku/Pio/Tia)可循环切换,可拖动且位置跨页保持,支持移动端
 - **主题系统**:6 套主题(light/dark/sepia/ocean/lavender/midnight),CSS 变量驱动,localStorage 持久化,无 next-themes
 - **MDX 内容**:unified + remark + rehype 管线,自动目录(TOC)、阅读进度条、rehype-pretty-code 代码高亮、Giscus 评论
@@ -39,7 +39,7 @@ pnpm lint      # ESLint(仓库基线已坏,只自查改动文件)
 ## 项目结构
 
 ```
-content/           # 文章与碎碎念念 MDX(frontmatter)
+content/           # 文章与碎碎念 MDX(frontmatter)
 public/            # 字体、Lanyard 资源、Live2D 全自托管静态树
 src/app/           # 路由(layout、首页、posts、thoughts、sitemap、rss、api/search)
 src/components/    # 按职责分组:home、nav、posts、thoughts、mdx、live2d、reactbits、search、theme
