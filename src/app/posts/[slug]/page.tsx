@@ -1,13 +1,13 @@
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { getPostBySlug, getAllSlugs, estimateReadingTime } from '@/lib/posts';
+import { getPostBySlug, getAllPosts, getAllSlugs, estimateReadingTime, findAdjacentPosts } from '@/lib/posts';
 import { compileMdx } from '@/lib/mdx';
 import Toc from '@/components/mdx/toc';
 import DynamicGiscus from '@/components/mdx/giscus-dynamic';
 import CodeEnhancer from '@/components/mdx/code-enhancer';
 import SplitText from '@/components/reactbits/split-text';
-import { Calendar, Clock, ArrowLeft, Tag } from 'lucide-react';
+import { Calendar, Clock, ArrowLeft, ArrowRight } from 'lucide-react';
 
 interface PostPageProps {
   params: Promise<{ slug: string }>;
@@ -48,6 +48,7 @@ export default async function PostPage({ params }: PostPageProps) {
   const { content, headings } = await compileMdx(post.content);
   const { title, date, tags, coverImage } = post.frontmatter;
   const readingTime = estimateReadingTime(post.content);
+  const { newer, older } = findAdjacentPosts(getAllPosts(), slug);
 
   return (
     <div className='page-enter max-w-5xl mx-auto px-4 sm:px-6 py-6 sm:py-10'>
@@ -104,12 +105,8 @@ export default async function PostPage({ params }: PostPageProps) {
               <>
                 <span className='w-1 h-1 rounded-full bg-current opacity-40' />
                 <span className='inline-flex items-center gap-1.5 flex-wrap'>
-                  <Tag size={14} />
-                  {tags.map((tag, i) => (
-                    <span
-                      key={tag}
-                      className={`tag-pill text-[11px] ${['tag-indigo', 'tag-pink', 'tag-cyan', 'tag-emerald', 'tag-amber', 'tag-violet'][i % 6]}`}
-                    >
+                  {tags.map((tag) => (
+                    <span key={tag} className='tag-pill text-[11px]'>
                       {tag}
                     </span>
                   ))}
@@ -130,15 +127,39 @@ export default async function PostPage({ params }: PostPageProps) {
 
           <CodeEnhancer />
 
-          <div className='mt-10 sm:mt-12 pt-6 border-t border-[var(--card-border)]'>
-            <Link
-              href='/posts'
-              className='btn-press inline-flex touch-target items-center gap-1.5 text-sm text-fg hover:text-[var(--color-accent)] transition-colors font-medium'
-            >
-              <ArrowLeft size={16} />
-              返回文章
-            </Link>
-          </div>
+          {/* 上一篇 / 下一篇 */}
+          <nav className='mt-10 sm:mt-12 grid grid-cols-1 gap-3 border-t border-[var(--card-border)] pt-6 sm:grid-cols-2' aria-label='相邻文章'>
+            {older ? (
+              <Link
+                href={`/posts/${older.slug}`}
+                className='btn-press group flex min-w-0 flex-col gap-1 rounded-lg border border-[var(--card-border)] p-3 transition-colors hover:border-[var(--color-accent)]'
+              >
+                <span className='inline-flex items-center gap-1.5 text-xs text-muted-fg'>
+                  <ArrowLeft size={13} />
+                  上一篇（更早）
+                </span>
+                <span className='truncate text-sm font-medium transition-colors group-hover:text-[var(--color-accent)]'>
+                  {older.frontmatter.title}
+                </span>
+              </Link>
+            ) : (
+              <span aria-hidden />
+            )}
+            {newer && (
+              <Link
+                href={`/posts/${newer.slug}`}
+                className='btn-press group flex min-w-0 flex-col gap-1 rounded-lg border border-[var(--card-border)] p-3 text-right transition-colors hover:border-[var(--color-accent)] sm:col-start-2'
+              >
+                <span className='inline-flex items-center gap-1.5 self-end text-xs text-muted-fg'>
+                  下一篇（更新）
+                  <ArrowRight size={13} />
+                </span>
+                <span className='truncate text-sm font-medium transition-colors group-hover:text-[var(--color-accent)]'>
+                  {newer.frontmatter.title}
+                </span>
+              </Link>
+            )}
+          </nav>
 
           <div className='animate-fade-up'>
             <DynamicGiscus />

@@ -83,4 +83,27 @@ describe("buildCardFrontSvg", () => {
     expect(svg).not.toContain("<script>");
     expect(svg).toContain("&lt;script&gt;");
   });
+
+  it("defaults to the dark face palette", () => {
+    const url = buildCardFrontSvg({ name: "koko", accent: "#6366f1", tagline: TAGLINE, intro: INTRO });
+    const svg = decodeSvg(url);
+    expect(svg).toContain('fill="#111827"');
+    expect(svg).toContain('fill="#ffffff"');
+  });
+
+  it("adapts face background and foreground to the provided palette", () => {
+    const url = buildCardFrontSvg({
+      name: "koko",
+      accent: "#6366f1",
+      tagline: TAGLINE,
+      intro: INTRO,
+      bg: "#fbfaf8",
+      fg: "#1c1917",
+    });
+    const svg = decodeSvg(url);
+    expect(svg).toContain('fill="#fbfaf8"');
+    expect(svg).toContain('fill="#1c1917"');
+    // 默认深色底不应再出现
+    expect(svg).not.toContain('fill="#111827"');
+  });
 });

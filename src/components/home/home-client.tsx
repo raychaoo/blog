@@ -1,7 +1,16 @@
 "use client";
 
+import Link from "next/link";
+import { Rss, ArrowRight } from "lucide-react";
+import GithubMark from "@/components/nav/github-mark";
 import Hero from "@/components/home/hero";
 import GithubContributions from "./github-contributions";
+
+export interface RecentPost {
+  slug: string;
+  title: string;
+  date: string;
+}
 
 interface Props {
   githubAvatarUrl: string | null;
@@ -9,51 +18,111 @@ interface Props {
   githubUsername: string;
   postCount: number;
   tagCount: number;
+  recentPosts: RecentPost[];
 }
 
-export default function HomeClient({ githubAvatarUrl, githubName, githubUsername, postCount, tagCount }: Props) {
+export default function HomeClient({ githubAvatarUrl, githubName, githubUsername, postCount, tagCount, recentPosts }: Props) {
   const startYear = "2020";
 
-  // 暂隐藏:右侧个人信息流(头像/统计/贡献图/简介),定稿后翻回 true
-  const showInfoColumn = false;
-
   return (
-    // Lanyard 3D 挂绳卡沾满全屏(100dvh - 56px 粘性头部)
+    // 两段式:上段 hero(3D 挂绳卡 + 滚动指示),下段「关于我 + 最近文章」
     <div className="w-full">
       <Hero name={githubName} />
 
-      {showInfoColumn && (
-        <aside className="mx-auto flex max-w-6xl flex-col gap-6 px-4 py-6 sm:px-6 lg:gap-8">
-        {githubAvatarUrl ? (
-          <img
-            src={githubAvatarUrl}
-            alt={githubName}
-            className="h-16 w-16 rounded-full border border-[var(--card-border)] shadow-sm"
-          />
-        ) : (
-          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-[var(--color-accent)] via-[var(--color-accent-violet)] to-[var(--color-accent-pink)] font-heading text-xl font-bold text-white shadow-sm">
-            {githubName.charAt(0).toUpperCase()}
-          </div>
-        )}
+      <section id="home-about" className="mx-auto w-full max-w-4xl scroll-mt-20 px-4 pb-16 sm:px-6">
+        <h2 className="sr-only">关于我</h2>
 
-        <div className="flex divide-x divide-[var(--card-border)]">
-          <Stat value={String(postCount)} label="文章" color="var(--color-accent)" />
-          <Stat value={String(tagCount)} label="标签" color="var(--color-accent-pink)" />
-          <Stat value={startYear} label="始于" color="var(--color-accent-cyan)" />
+        <div className="flex flex-wrap items-center gap-x-8 gap-y-6">
+          <div className="flex items-center gap-4">
+            {githubAvatarUrl ? (
+              <img
+                src={githubAvatarUrl}
+                alt={githubName}
+                className="h-14 w-14 rounded-full border border-[var(--card-border)] shadow-sm"
+              />
+            ) : (
+              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-[var(--color-accent)] via-[var(--color-accent-violet)] to-[var(--color-accent-pink)] font-heading text-xl font-bold text-white shadow-sm">
+                {githubName.charAt(0).toUpperCase()}
+              </div>
+            )}
+            <div>
+              <div className="font-heading text-lg font-semibold">{githubName}</div>
+              <div className="text-sm text-muted-fg">@{githubUsername} · 全栈开发者</div>
+            </div>
+          </div>
+
+          <div className="flex divide-x divide-[var(--card-border)]">
+            <Stat value={String(postCount)} label="文章" color="var(--color-accent)" />
+            <Stat value={String(tagCount)} label="标签" color="var(--color-accent-pink)" />
+            <Stat value={startYear} label="始于" color="var(--color-accent-cyan)" />
+          </div>
+
+          <div className="flex items-center gap-4 sm:ml-auto">
+            <a
+              href={`https://github.com/${githubUsername}`}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex touch-target items-center gap-1.5 text-sm text-muted-fg transition-colors hover:text-fg"
+            >
+              <GithubMark size={16} />
+              GitHub
+            </a>
+            <a
+              href="/rss.xml"
+              className="inline-flex touch-target items-center gap-1.5 text-sm text-muted-fg transition-colors hover:text-fg"
+            >
+              <Rss size={16} />
+              RSS
+            </a>
+          </div>
         </div>
 
-        <div className="sidebar-card rounded-lg border border-[var(--card-border)] bg-[var(--card-bg)] p-4 sm:p-5">
+        <p className="mt-5 max-w-2xl text-sm leading-relaxed text-muted-fg">
+          全栈开发者，专注于 React、Next.js 和 TypeScript。记录技术学习与开发实践，涵盖前端工程化、React
+          生态、开发效率等话题。
+        </p>
+
+        <div className="sidebar-card mt-6 rounded-lg border border-[var(--card-border)] bg-[var(--card-bg)] p-4 sm:p-5">
           <GithubContributions username={githubUsername} />
         </div>
 
-          <p className="text-sm leading-relaxed text-muted-fg">
-            全栈开发者，专注于 React、Next.js 和 TypeScript。记录技术学习与开发实践，涵盖前端工程化、React
-            生态、开发效率等话题。
-          </p>
-        </aside>
-      )}
+        <div className="mt-12">
+          <div className="mb-2 flex items-baseline justify-between">
+            <h2 className="font-heading text-xl font-bold tracking-tight">最近更新</h2>
+            <Link
+              href="/posts"
+              className="inline-flex items-center gap-1 text-sm text-muted-fg transition-colors hover:text-[var(--color-accent)]"
+            >
+              全部文章
+              <ArrowRight size={14} />
+            </Link>
+          </div>
+          <ul>
+            {recentPosts.map((post) => (
+              <li key={post.slug} className="border-b border-[var(--card-border)] last:border-b-0">
+                <Link
+                  href={`/posts/${post.slug}`}
+                  className="group flex items-baseline justify-between gap-6 py-3"
+                >
+                  <span className="min-w-0 truncate text-sm font-medium transition-colors group-hover:text-[var(--color-accent)]">
+                    {post.title}
+                  </span>
+                  <time dateTime={post.date} className="shrink-0 text-xs tabular-nums text-muted-fg">
+                    {formatCompactDate(post.date)}
+                  </time>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
     </div>
   );
+}
+
+function formatCompactDate(date: string): string {
+  const d = new Date(date);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 }
 
 function Stat({ value, label, color }: { value: string; label: string; color: string }) {

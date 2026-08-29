@@ -7,6 +7,8 @@ describe("readAccentColors", () => {
     const colors = readAccentColors();
     expect(colors.accent).toBe("#6366f1");
     expect(colors.violet).toBe("#8b5cf6");
+    expect(colors.bg).toBe("#111827");
+    expect(colors.fg).toBe("#f5f0eb");
   });
 
   it("reads accent colors from CSS variables", () => {
@@ -24,5 +26,18 @@ describe("readAccentColors", () => {
     const colors = readAccentColors();
     expect(colors.accent).toBe("#111111");
     expect(colors.amber).toBe("#666666");
+  });
+
+  it("reads surface colors from theme variables", () => {
+    const style = document.createElement("style");
+    style.textContent = `
+      :root {
+        --card-bg: #fbfaf8;
+        --fg-color: #1c1917;
+      }`;
+    document.head.appendChild(style);
+    const colors = readAccentColors();
+    expect(colors.bg).toBe("#fbfaf8");
+    expect(colors.fg).toBe("#1c1917");
   });
 });

@@ -18,6 +18,9 @@ async function getGithubUser() {
 
 export default async function HomePage() {
   const githubUser = await getGithubUser();
+  const recentPosts = getAllPosts()
+    .slice(0, 5)
+    .map((p) => ({ slug: p.slug, title: p.frontmatter.title, date: p.frontmatter.date }));
   return (
     <HomeClient
       githubAvatarUrl={githubUser.avatarUrl}
@@ -25,6 +28,7 @@ export default async function HomePage() {
       githubUsername={githubUser.login}
       postCount={getAllPosts().length}
       tagCount={getAllTags().length}
+      recentPosts={recentPosts}
     />
   );
 }

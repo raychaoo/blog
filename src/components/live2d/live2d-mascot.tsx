@@ -25,16 +25,22 @@ export default function Live2dMascot() {
         css.rel = "stylesheet";
         css.href = "/live2d/waifu.css";
 
-        // 看板娘默认贴右下角:与 waifu.css 同特异性(ID)且后注入,覆盖其 left: 0;
-        // 刻意不用 !important,让拖拽/restore 写入的内联 left 按级联优先于样式表规则
-        const style = document.createElement("style");
-        style.textContent = "#waifu { left: auto; right: 0; }";
+        // 看板娘默认贴左下角(waifu.css 默认 #waifu { left: 0 }),不再注入右下角覆盖:
+        // 右下角让给文章页右侧目录与移动端 TOC 悬浮按钮,避免遮挡内容。
 
         const script = document.createElement("script");
         script.type = "module";
         script.src = "/live2d/waifu-tips.js";
 
         script.onload = () => {
+          // 移动端默认收起:waifu-display 在 24h 窗口内时 widget 只渲染左缘开关,
+          // 点击开关即完整展开;桌面不受影响。SPA 站内导航不重载,状态自然保留。
+          if (window.matchMedia("(max-width: 767px)").matches) {
+            const displayed = localStorage.getItem("waifu-display");
+            if (!displayed && localStorage.getItem("waifu-disabled") !== "true") {
+              localStorage.setItem("waifu-display", String(Date.now()));
+            }
+          }
           window.initWidget?.({
             waifuPath: "/live2d/waifu-tips.json",
             cdnPath: "/live2d-api/",
@@ -44,7 +50,7 @@ export default function Live2dMascot() {
           });
           bindPositionPersistence();
         };
-        document.head.append(css, script, style);
+        document.head.append(css, script);
       },
       1500 // 延迟加载，避免影响首屏
     );

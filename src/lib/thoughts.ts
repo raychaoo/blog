@@ -62,7 +62,15 @@ export function extractPreview(content: string, maxLines = 3): string {
   const lines = content
     .split("\n")
     .filter((line) => !/^#{1,6}\s+/.test(line))
-    .map((line) => line.replace(/^#{1,6}\s+/, "").replace(/[*_`>#-]/g, "").trim())
+    .map((line) =>
+      line
+        .replace(/^#{1,6}\s+/, "")
+        // 图片与链接只保留可读文本,避免预览泄漏 Markdown 原始语法
+        .replace(/!\[([^\]]*)\]\([^)]*\)/g, "$1")
+        .replace(/\[([^\]]*)\]\([^)]*\)/g, "$1")
+        .replace(/[*_`>#-]/g, "")
+        .trim()
+    )
     .filter(Boolean);
   const preview = lines.slice(0, maxLines).join(" ");
   return preview.length > 120 ? preview.slice(0, 120).trimEnd() + "…" : preview;

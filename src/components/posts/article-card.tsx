@@ -3,49 +3,35 @@ import type { PostMeta } from "@/lib/posts";
 
 interface ArticleCardProps {
   post: PostMeta;
-  index?: number;
 }
 
-const ACCENTS = [
-  "var(--color-accent)",
-  "var(--color-accent-violet)",
-  "var(--color-accent-pink)",
-  "var(--color-accent-cyan)",
-  "var(--color-accent-emerald)",
-  "var(--color-accent-amber)",
-];
+/** 紧凑日期:2026-08-23(本地时区取值,避免 toISOString 的 UTC 偏移) */
+export function formatCompactDate(date: string): string {
+  const d = new Date(date);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
 
-export default function ArticleCard({ post, index = 0 }: ArticleCardProps) {
+export default function ArticleCard({ post }: ArticleCardProps) {
   const { title, date, description, tags } = post.frontmatter;
-  const accent = ACCENTS[index % ACCENTS.length];
 
   return (
     <Link href={`/posts/${post.slug}`} className="btn-press block h-full">
       <article className="article-card h-full">
-        <div className="flex-1 flex flex-col">
-          <div className="card-date text-sm mb-2">
-            <time dateTime={date}>
-              {new Date(date).toLocaleDateString("zh-CN", {
-                year: "numeric",
-                month: "long",
-                day: "numeric",
-              })}
-            </time>
-          </div>
-          <h2 className="card-title text-lg font-heading font-semibold mb-2 leading-snug">
-            {title}
-          </h2>
-          {description && (
-            <p className="card-desc text-sm leading-relaxed flex-1">{description}</p>
-          )}
+        <h2 className="card-title text-lg font-heading font-semibold mb-2 leading-snug">
+          {title}
+        </h2>
+        {description && (
+          <p className="card-desc text-sm leading-relaxed">{description}</p>
+        )}
+        {/* meta 行钉在卡片底部,同行卡片底部对齐 */}
+        <div className="mt-auto flex flex-wrap items-center gap-x-3 gap-y-1.5 pt-4">
+          <time dateTime={date} className="card-date text-xs tabular-nums">
+            {formatCompactDate(date)}
+          </time>
           {tags && tags.length > 0 && (
-            <div className="flex flex-wrap gap-1.5 mt-3">
-              {tags.map((tag, i) => (
-                <span
-                  key={tag}
-                  className="tag-pill text-xs"
-                  style={{ borderColor: accent, color: accent }}
-                >
+            <div className="flex flex-wrap gap-1.5">
+              {tags.map((tag) => (
+                <span key={tag} className="tag-pill text-xs">
                   {tag}
                 </span>
               ))}

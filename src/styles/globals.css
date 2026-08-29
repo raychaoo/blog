@@ -45,13 +45,14 @@
 [data-theme="light"] {
   --bg-color: #ffffff;
   --fg-color: #1c1917;
-  --card-bg: #ffffff;
+  /* 卡面与页面底色留一点温度差,避免"白底叠白底"没有层次 */
+  --card-bg: #fbfaf8;
   --card-fg: #1c1917;
   --card-border: #e8e4de;
-  --card-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+  --card-shadow: 0 1px 2px rgba(28,25,23,0.05), 0 10px 28px -18px rgba(28,25,23,0.25);
   --muted-bg: #f5f5f4;
-  --muted-fg: #8c8279;
-  --header-bg: rgba(255,255,255,0.85);
+  --muted-fg: #6d6459;
+  --header-bg: rgba(255,255,255,0.92);
   --color-accent: #6366f1;
   --color-accent-foreground: #ffffff;
   --color-accent-violet: #8b5cf6;
@@ -75,7 +76,7 @@
   --card-shadow: 0 1px 3px rgba(0,0,0,0.2);
   --muted-bg: #282829;
   --muted-fg: #98989d;
-  --header-bg: rgba(18,17,16,0.85);
+  --header-bg: rgba(18,17,16,0.92);
   --color-accent: #818cf8;
   --color-accent-foreground: #ffffff;
   --color-accent-violet: #a78bfa;
@@ -98,8 +99,8 @@
   --card-border: #e6d5b8;
   --card-shadow: 0 1px 3px rgba(90,70,54,0.08);
   --muted-bg: #f5ead5;
-  --muted-fg: #8c7a6b;
-  --header-bg: rgba(250,244,232,0.85);
+  --muted-fg: #6f5d49;
+  --header-bg: rgba(250,244,232,0.92);
   --color-accent: #c97d53;
   --color-accent-foreground: #ffffff;
   --color-accent-violet: #b08968;
@@ -123,7 +124,7 @@
   --card-shadow: 0 1px 3px rgba(0,0,0,0.3);
   --muted-bg: #1e293b;
   --muted-fg: #94a3b8;
-  --header-bg: rgba(15,23,42,0.85);
+  --header-bg: rgba(15,23,42,0.92);
   --color-accent: #38bdf8;
   --color-accent-foreground: #0f172a;
   --color-accent-violet: #818cf8;
@@ -146,8 +147,8 @@
   --card-border: #e9d5ff;
   --card-shadow: 0 1px 3px rgba(107,33,168,0.06);
   --muted-bg: #f5f0ff;
-  --muted-fg: #8b7aa8;
-  --header-bg: rgba(250,245,255,0.85);
+  --muted-fg: #74609e;
+  --header-bg: rgba(250,245,255,0.92);
   --color-accent: #8b5cf6;
   --color-accent-foreground: #ffffff;
   --color-accent-violet: #a78bfa;
@@ -171,7 +172,7 @@
   --card-shadow: 0 1px 3px rgba(0,0,0,0.3);
   --muted-bg: #1f2227;
   --muted-fg: #8c929b;
-  --header-bg: rgba(10,12,14,0.85);
+  --header-bg: rgba(10,12,14,0.92);
   --color-accent: #34d399;
   --color-accent-foreground: #0a0c0e;
   --color-accent-violet: #818cf8;
@@ -247,47 +248,11 @@ body {
   transition: transform 200ms ease, box-shadow 200ms ease, border-color 200ms ease;
 }
 
-.article-card::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 1.25rem;
-  right: 1.25rem;
-  height: 2px;
-  background: var(--accent-gradient);
-  border-radius: 0 0 2px 2px;
-  opacity: 0;
-  transition: opacity 200ms ease;
-}
-
-.article-card:hover::before {
-  opacity: 1;
-}
-
+/* 悬停只做三件事:轻微上浮、边框靠拢 accent、阴影加深;不做彩色光晕 */
 .article-card:hover {
-  transform: translateY(-3px);
-  border-color: var(--color-accent);
-  box-shadow: 0 6px 24px rgba(99, 102, 241, 0.12), 0 2px 8px rgba(236, 72, 153, 0.08);
-}
-
-[data-theme="dark"] .article-card:hover {
-  box-shadow: 0 6px 24px rgba(129, 140, 248, 0.15), 0 2px 8px rgba(244, 114, 182, 0.1);
-}
-
-[data-theme="ocean"] .article-card:hover {
-  box-shadow: 0 6px 24px rgba(56, 189, 248, 0.15), 0 2px 8px rgba(34, 211, 238, 0.1);
-}
-
-[data-theme="midnight"] .article-card:hover {
-  box-shadow: 0 6px 24px rgba(52, 211, 153, 0.15), 0 2px 8px rgba(129, 140, 248, 0.1);
-}
-
-[data-theme="sepia"] .article-card:hover {
-  box-shadow: 0 6px 24px rgba(201, 125, 83, 0.15), 0 2px 8px rgba(178, 137, 104, 0.1);
-}
-
-[data-theme="lavender"] .article-card:hover {
-  box-shadow: 0 6px 24px rgba(139, 92, 246, 0.12), 0 2px 8px rgba(236, 72, 153, 0.08);
+  transform: translateY(-2px);
+  border-color: color-mix(in srgb, var(--color-accent) 55%, var(--card-border));
+  box-shadow: 0 12px 32px -16px rgba(0, 0, 0, 0.28);
 }
 
 .article-card .card-date {
@@ -347,7 +312,8 @@ body {
 
 .prose h1, .prose h2, .prose h3, .prose h4 {
   font-family: var(--font-heading);
-  font-weight: 650;
+  /* 静态字重只有 400/500/600/700,写 600 避免浏览器合成粗体 */
+  font-weight: 600;
   line-height: 1.35;
   margin-top: 2.2em;
   margin-bottom: 0.6em;
@@ -376,7 +342,7 @@ body {
 }
 
 .prose strong {
-  font-weight: 650;
+  font-weight: 600;
   color: var(--fg-color);
 }
 
@@ -779,23 +745,44 @@ button:focus-visible:not(:focus-visible) {
 }
 
 /* ── Hero (homepage) ── */
+/* 两段式首页:hero 约占 78dvh(封顶 700px),下方保留「关于我 + 最近文章」内容区 */
 .hero-section {
-  height: 100%;
-  min-height: 0;
+  position: relative;
+  height: clamp(420px, calc(78dvh - 56px), 700px);
 }
 .hero-lanyard {
-  /* --lanyard-height 同时驱动 Lanyard 内部画布高度(默认回退 100vh);
-     高度 = 100dvh - 头部(56px) - 安全余量(16px):页面恰好比一屏短,
-     任何 1px 级溢出(头部边线、subpixel 舍入、粒子摆动)都不会顶出滚动条 */
-  --lanyard-height: calc(100dvh - 72px);
+  /* --lanyard-height 同时驱动 Lanyard 内部画布高度(默认回退 100vh) */
+  --lanyard-height: clamp(420px, calc(78dvh - 56px), 700px);
   height: var(--lanyard-height);
   min-height: 0;
   overflow: hidden;
 }
 /* 移动端头部为两行(约 94px),余量相应加大 */
 @media (max-width: 639px) {
+  .hero-section {
+    height: clamp(360px, calc(78dvh - 116px), 620px);
+  }
   .hero-lanyard {
-    --lanyard-height: calc(100dvh - 116px);
+    --lanyard-height: clamp(360px, calc(78dvh - 116px), 620px);
+  }
+}
+
+/* 滚动指示:轻轻上下浮动,提示下方还有内容 */
+.hero-scroll-cue {
+  position: absolute;
+  left: 50%;
+  bottom: 4px;
+  transform: translateX(-50%);
+  color: var(--muted-fg);
+  animation: cue-bob 2.2s ease-in-out infinite;
+}
+@keyframes cue-bob {
+  0%, 100% { transform: translate(-50%, 0); }
+  50% { transform: translate(-50%, 6px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-scroll-cue {
+    animation: none;
   }
 }
 
@@ -853,23 +840,8 @@ a {
   transform: scale(0.96);
 }
 
-/* 显隐切换小标签镜像到右边缘,slide 动画改用 margin-right */
-#waifu-toggle {
-  right: 0 !important;
-  left: auto !important;
-  margin-left: 0 !important;
-  margin-right: -100px;
-  justify-content: flex-start !important;
-  transition: margin-right 1s !important;
-}
-
-#waifu-toggle.waifu-toggle-active {
-  margin-right: -50px;
-}
-
-#waifu-toggle.waifu-toggle-active:hover {
-  margin-right: -30px;
-}
+/* 看板娘默认锚在左下角(waifu.css 默认 left:0),显隐开关同样回到左缘,
+   右下角让给文章页目录与移动端 TOC 按钮,避免遮挡内容 */
 
 /* 工具面板贴回看板娘右缘:right: -10px 溢出在右下角默认位会被视口裁切 */
 #waifu-tool {

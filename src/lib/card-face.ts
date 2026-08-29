@@ -26,6 +26,10 @@ export interface CardFaceOptions {
   accent: string;
   tagline: string;
   intro: string;
+  /** 卡面底色,默认深色 #111827;浅色主题传入 --card-bg */
+  bg?: string;
+  /** 卡面前景色(姓名文字),默认白色;浅色主题传入 --fg-color */
+  fg?: string;
 }
 
 /** Approximate char width in em units: CJK = 1, latin/digits/space = 0.5. */
@@ -120,34 +124,36 @@ function textTag(
   y: number,
   fontSize: number,
   fill: string,
-  content: string
+  content: string,
+  opacity?: number
 ): string {
+  const opacityAttr = opacity !== undefined ? ` opacity="${opacity}"` : "";
   return (
-    `<text x="${x}" y="${y}" text-anchor="middle" font-family="sans-serif" font-size="${fontSize}" fill="${fill}">` +
+    `<text x="${x}" y="${y}" text-anchor="middle" font-family="sans-serif" font-size="${fontSize}" fill="${fill}"${opacityAttr}>` +
     escapeXml(content) +
     `</text>`
   );
 }
 
-export function buildCardFrontSvg({ name, accent, tagline, intro }: CardFaceOptions): string {
+export function buildCardFrontSvg({ name, accent, tagline, intro, bg = "#111827", fg = "#ffffff" }: CardFaceOptions): string {
   const taglineLines = wrapLines(tagline, 20);
   const introLines = wrapLines(intro, 23);
 
   const introStartY = TAGLINE_START_Y + taglineLines.length * TAGLINE_LINE_H + INTRO_GAP;
 
   const taglineTexts = taglineLines
-    .map((line, i) => textTag(240, TAGLINE_START_Y + i * TAGLINE_LINE_H, 22, "#cbd5e1", line))
+    .map((line, i) => textTag(240, TAGLINE_START_Y + i * TAGLINE_LINE_H, 22, fg, line, 0.72))
     .join("");
   const introTexts = introLines
-    .map((line, i) => textTag(240, introStartY + i * INTRO_LINE_H, 18, "#94a3b8", line))
+    .map((line, i) => textTag(240, introStartY + i * INTRO_LINE_H, 18, fg, line, 0.55))
     .join("");
 
   const svg =
     `<svg xmlns="http://www.w3.org/2000/svg" width="${CARD_FACE_WIDTH}" height="${CARD_FACE_HEIGHT}" viewBox="0 0 ${CARD_FACE_WIDTH} ${CARD_FACE_HEIGHT}">` +
-    `<rect width="${CARD_FACE_WIDTH}" height="${CARD_FACE_HEIGHT}" rx="24" fill="#111827" opacity="0.92"/>` +
+    `<rect width="${CARD_FACE_WIDTH}" height="${CARD_FACE_HEIGHT}" rx="24" fill="${escapeXml(bg)}" opacity="0.92"/>` +
     `<rect x="14" y="14" width="${CARD_FACE_WIDTH - 28}" height="${CARD_FACE_HEIGHT - 28}" rx="18" fill="none" stroke="${escapeXml(accent)}" stroke-width="2" opacity="0.6"/>` +
     textTag(240, LABEL_Y, 20, escapeXml(accent), LABEL) +
-    textTag(240, NAME_Y, 44, "#ffffff", `你好，我是 ${name}`) +
+    textTag(240, NAME_Y, 44, escapeXml(fg), `你好，我是 ${name}`) +
     `<line x1="140" y1="${DIVIDER_Y}" x2="340" y2="${DIVIDER_Y}" stroke="${escapeXml(accent)}" stroke-width="2" opacity="0.6"/>` +
     taglineTexts +
     introTexts +

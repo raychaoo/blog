@@ -23,7 +23,6 @@ function getActiveIndex(pathname: string): number {
 export default function Header() {
   const pathname = usePathname();
   const colors = useAccentColors();
-  const showSearch = pathname.startsWith("/posts") || pathname.startsWith("/thoughts");
 
   return (
     <header className="site-header sticky top-0 z-30 backdrop-blur-sm">
@@ -51,7 +50,7 @@ export default function Header() {
           + full-width, so controls share row 1 with the logo.
         */}
         <div className="flex items-center gap-2 sm:gap-4">
-          {showSearch && <SearchModal />}
+          <SearchModal />
           <ThemePicker />
         </div>
       </div>

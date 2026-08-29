@@ -116,6 +116,24 @@ export function getAllTags(): string[] {
   return Array.from(tagSet).sort();
 }
 
+export interface AdjacentPosts {
+  newer: PostMeta | null;
+  older: PostMeta | null;
+}
+
+/**
+ * 在按日期降序排列的文章列表中找到 slug 的相邻文章。
+ * newer = 更新一篇(列表中前一位),older = 更早一篇(列表中后一位)。
+ */
+export function findAdjacentPosts(posts: PostMeta[], slug: string): AdjacentPosts {
+  const idx = posts.findIndex((p) => p.slug === slug);
+  if (idx === -1) return { newer: null, older: null };
+  return {
+    newer: posts[idx - 1] ?? null,
+    older: posts[idx + 1] ?? null,
+  };
+}
+
 export function getAllSlugs(): string[] {
   if (!fs.existsSync(postsDirectory)) return [];
 

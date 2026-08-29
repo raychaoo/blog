@@ -7,6 +7,11 @@ describe("extractPreview", () => {
     expect(extractPreview(md, 2)).toBe("第一行 加粗 内容 第二行 代码");
   });
 
+  it("keeps only the alt text of images and the text of links", () => {
+    const md = "看图 ![账单截图](/thoughts/x/before.png) 与 [往期文章](/thoughts/first-murmur) 的对比";
+    expect(extractPreview(md, 1)).toBe("看图 账单截图 与 往期文章 的对比");
+  });
+
   it("truncates long previews with an ellipsis", () => {
     const long = "字".repeat(200);
     const preview = extractPreview(long, 3);

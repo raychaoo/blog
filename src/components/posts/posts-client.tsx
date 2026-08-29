@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect } from "react";
-import ChromaGrid from "@/components/reactbits/chroma-grid";
 import ArticleCard from "@/components/posts/article-card";
 import type { PostMeta } from "@/lib/posts";
 
@@ -34,23 +33,17 @@ export default function PostsClient({ posts }: Props) {
     return () => document.removeEventListener("click", handleClick);
   }, []);
 
-  const items = posts.map((post) => ({
-    image: post.frontmatter.coverImage || "",
-    title: post.frontmatter.title,
-    subtitle: post.frontmatter.description || post.frontmatter.date,
-    url: `/posts/${post.slug}`,
-    gradient: `linear-gradient(160deg, color-mix(in srgb, var(--color-accent) 28%, var(--card-bg)), var(--card-bg) 130%)`,
-    borderColor: "var(--color-accent)",
-    post,
-  }));
-
   return (
-    <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
+    <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
       <div className="mb-8">
         <h1 className="font-heading text-2xl sm:text-3xl font-bold tracking-tight">文章</h1>
         <p className="text-sm text-muted-fg mt-1">共 {posts.length} 篇 · 记录技术学习与开发实践</p>
       </div>
-      <ChromaGrid items={items} renderItem={(item, i) => <ArticleCard post={item.post!} index={i} />} />
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5">
+        {posts.map((post) => (
+          <ArticleCard key={post.slug} post={post} />
+        ))}
+      </div>
     </div>
   );
 }

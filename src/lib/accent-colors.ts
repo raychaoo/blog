@@ -8,6 +8,10 @@ export interface AccentColors {
   cyan: string;
   emerald: string;
   amber: string;
+  /** 主题卡面底色(--card-bg),供 3D 卡面等烘焙场景随主题变化 */
+  bg: string;
+  /** 主题前景色(--fg-color) */
+  fg: string;
 }
 
 const FALLBACKS: AccentColors = {
@@ -17,6 +21,8 @@ const FALLBACKS: AccentColors = {
   cyan: "#06b6d4",
   emerald: "#10b981",
   amber: "#f59e0b",
+  bg: "#111827",
+  fg: "#f5f0eb",
 };
 
 const VAR_NAMES: (keyof AccentColors)[] = [
@@ -38,6 +44,10 @@ export function readAccentColors(): AccentColors {
   }
   const accent = cs.getPropertyValue("--color-accent").trim();
   if (accent) result.accent = accent;
+  const bg = cs.getPropertyValue("--card-bg").trim();
+  if (bg) result.bg = bg;
+  const fg = cs.getPropertyValue("--fg-color").trim();
+  if (fg) result.fg = fg;
   return result;
 }
 
