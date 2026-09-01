@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "node scripts/dev.mjs",
-    "build": "next build",
+    "build": "pnpm fonts && next build",
     "start": "node scripts/start.mjs",
     "preview": "next build && node scripts/start.mjs",
     "lint": "eslint",
