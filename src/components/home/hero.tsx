@@ -11,8 +11,8 @@ const Lanyard = dynamic(() => import("@/components/reactbits/lanyard"), {
   loading: () => null,
 });
 
-const TAGLINE = "全栈开发者 · 热爱 React 与 TypeScript · 记录技术学习与思考";
-const INTRO = "记录前端工程化、React 生态与开发效率的实践，有长文，也有碎碎念。";
+const TAGLINE = "React · Next.js · TypeScript · 偶尔折腾点别的";
+const INTRO = "长文、笔记、碎碎念，都丢在这里。";
 
 // Lanyard 物理链把卡片停在 x≈2;相机默认在 x=0 正视 -Z。
 // 宽屏下 2 单位偏移只占视野一小部分,窄屏(视场宽约 6 单位)会明显偏右,故移动端相机对齐卡片。

@@ -21,7 +21,14 @@ interface Props {
   recentPosts: RecentPost[];
 }
 
-export default function HomeClient({ githubAvatarUrl, githubName, githubUsername, postCount, tagCount, recentPosts }: Props) {
+export default function HomeClient({
+  githubAvatarUrl,
+  githubName,
+  githubUsername,
+  postCount,
+  tagCount,
+  recentPosts,
+}: Props) {
   const startYear = "2020";
 
   return (
@@ -29,7 +36,10 @@ export default function HomeClient({ githubAvatarUrl, githubName, githubUsername
     <div className="w-full">
       <Hero name={githubName} />
 
-      <section id="home-about" className="mx-auto w-full max-w-4xl scroll-mt-20 px-4 pb-16 sm:px-6">
+      <section
+        id="home-about"
+        className="mx-auto w-full max-w-4xl scroll-mt-20 px-4 pb-16 sm:px-6"
+      >
         <h2 className="sr-only">关于我</h2>
 
         <div className="flex flex-wrap items-center gap-x-8 gap-y-6">
@@ -46,15 +56,31 @@ export default function HomeClient({ githubAvatarUrl, githubName, githubUsername
               </div>
             )}
             <div>
-              <div className="font-heading text-lg font-semibold">{githubName}</div>
-              <div className="text-sm text-muted-fg">@{githubUsername} · 全栈开发者</div>
+              <div className="font-heading text-lg font-semibold">
+                {githubName}
+              </div>
+              <div className="text-sm text-muted-fg">
+                @{githubUsername}
+              </div>
             </div>
           </div>
 
           <div className="flex divide-x divide-[var(--card-border)]">
-            <Stat value={String(postCount)} label="文章" color="var(--color-accent)" />
-            <Stat value={String(tagCount)} label="标签" color="var(--color-accent-pink)" />
-            <Stat value={startYear} label="始于" color="var(--color-accent-cyan)" />
+            <Stat
+              value={String(postCount)}
+              label="文章"
+              color="var(--color-accent)"
+            />
+            <Stat
+              value={String(tagCount)}
+              label="标签"
+              color="var(--color-accent-pink)"
+            />
+            <Stat
+              value={startYear}
+              label="始于"
+              color="var(--color-accent-cyan)"
+            />
           </div>
 
           <div className="flex items-center gap-4 sm:ml-auto">
@@ -78,8 +104,8 @@ export default function HomeClient({ githubAvatarUrl, githubName, githubUsername
         </div>
 
         <p className="mt-5 max-w-2xl text-sm leading-relaxed text-muted-fg">
-          全栈开发者，专注于 React、Next.js 和 TypeScript。记录技术学习与开发实践，涵盖前端工程化、React
-          生态、开发效率等话题。
+          写代码、记笔记，偶尔也折腾点别的。
+          这个博客是我整理笔记和踩坑的地方，写给自己看，顺便也能给别人参考。
         </p>
 
         <div className="sidebar-card mt-6 rounded-lg border border-[var(--card-border)] bg-[var(--card-bg)] p-4 sm:p-5">
@@ -88,7 +114,9 @@ export default function HomeClient({ githubAvatarUrl, githubName, githubUsername
 
         <div className="mt-12">
           <div className="mb-2 flex items-baseline justify-between">
-            <h2 className="font-heading text-xl font-bold tracking-tight">最近更新</h2>
+            <h2 className="font-heading text-xl font-bold tracking-tight">
+              最近更新
+            </h2>
             <Link
               href="/posts"
               className="inline-flex items-center gap-1 text-sm text-muted-fg transition-colors hover:text-[var(--color-accent)]"
@@ -99,7 +127,10 @@ export default function HomeClient({ githubAvatarUrl, githubName, githubUsername
           </div>
           <ul>
             {recentPosts.map((post) => (
-              <li key={post.slug} className="border-b border-[var(--card-border)] last:border-b-0">
+              <li
+                key={post.slug}
+                className="border-b border-[var(--card-border)] last:border-b-0"
+              >
                 <Link
                   href={`/posts/${post.slug}`}
                   className="group flex items-baseline justify-between gap-6 py-3"
@@ -107,7 +138,10 @@ export default function HomeClient({ githubAvatarUrl, githubName, githubUsername
                   <span className="min-w-0 truncate text-sm font-medium transition-colors group-hover:text-[var(--color-accent)]">
                     {post.title}
                   </span>
-                  <time dateTime={post.date} className="shrink-0 text-xs tabular-nums text-muted-fg">
+                  <time
+                    dateTime={post.date}
+                    className="shrink-0 text-xs tabular-nums text-muted-fg"
+                  >
                     {formatCompactDate(post.date)}
                   </time>
                 </Link>
@@ -125,10 +159,21 @@ function formatCompactDate(date: string): string {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 }
 
-function Stat({ value, label, color }: { value: string; label: string; color: string }) {
+function Stat({
+  value,
+  label,
+  color,
+}: {
+  value: string;
+  label: string;
+  color: string;
+}) {
   return (
     <div className="flex-1 px-4 text-center first:pl-0 last:pr-0 sm:px-6">
-      <div className="font-heading text-xl font-bold tabular-nums sm:text-2xl" style={{ color }}>
+      <div
+        className="font-heading text-xl font-bold tabular-nums sm:text-2xl"
+        style={{ color }}
+      >
         {value}
       </div>
       <div className="mt-0.5 text-xs text-muted-fg">{label}</div>
