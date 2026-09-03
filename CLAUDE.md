@@ -10,7 +10,7 @@
 - **UI**:React 19、TypeScript 5
 - **样式**:Tailwind CSS v4(`@tailwindcss/postcss`)+ CSS 自定义属性
 - **内容**:MDX 走 `unified` + `remark` + `rehype` 管线(不用 `@next/mdx`)
-- **字体**:阿里巴巴普惠体 3.0(自托管 WOFF2,无 Google Fonts API)
+- **字体**:阿里巴巴普惠体 3.0(自托管 WOFF2 子集,无 Google Fonts API)
 - **搜索**:Fuse.js(客户端模糊搜索)
 - **动效**:GSAP(@gsap/react)+ Three.js / react-three-fiber(Lanyard)
 - **UI 库**:ReactBits(自托管/手写组件)
@@ -26,8 +26,10 @@ content/
 │   └── (图片放 public/posts/{slug}/,见「内容图片约定」)
 └── thoughts/{slug}/index.mdx       # 碎碎念(frontmatter: title, date)
     └── (图片放 public/thoughts/{slug}/,见「内容图片约定」)
+assets/
+└── fonts-src/                      # 普惠体 3.0 源字体(仅供脚本生成子集,不部署)
 public/
-├── fonts/                          # 自托管阿里巴巴普惠体 WOFF2
+├── fonts/                          # 普惠体子集 WOFF2(pnpm fonts 生成)
 ├── lanyard/                        # Lanyard 的 card.glb + 图片资源
 ├── live2d/                         # 自托管 live2d-widget v1 + 3 个模型(完全静态)
 ├── live2d-api/                     # 自托管 live2d API 静态树(模型/切换配置)
@@ -109,6 +111,7 @@ src/
 - **静态导出**:[next.config.ts](next.config.ts) 设置 `output: 'export'` — 产物为纯静态站点(`out/`),无 Node 服务端。
 - **`reactStrictMode: false`(必须保留)**:本机 AMD RX 6600M + ANGLE D3D11 组合下,StrictMode 双挂载 r3f Canvas 会残留两个 WebGL context,GPU 进程约 1 秒后崩溃(webglcontextlost → 3D 卡片变空白)。生产静态导出不受影响(StrictMode 双调用仅开发期),改回 true 前需先在真机上验证。
 - **vercel.json**:Vercel 部署(`pnpm install` + `next build`);`/fonts/*` 加 1 年 immutable 缓存头。
+- **字体子集**:`pnpm fonts` 读取 `content/` + `src/` 实际字符,用 `subset-font` 生成 `public/fonts/puhuiti-*/f{0,1}.woff2`(ASCII/内容字符两档)并重写 `src/styles/fonts.css`;源字体在 `assets/fonts-src/` 随仓库提交,新增文章后重跑 `pnpm fonts` 再构建。
 - **搜索索引**:`/api/search` 路由 `dynamic = "force-static"`,构建时生成 `{posts, thoughts}` 双索引;客户端搜索弹窗直接 `fetch("/api/search")` 再交给 Fuse.js。
 
 ## 关键约定
@@ -116,7 +119,7 @@ src/
 - **Server Components 优先** — 仅在需要交互/浏览器 API 时加 `"use client"`
 - **CSS 变量**做主题化,不用 Tailwind 的 `dark:` 变体
 - **Tailwind v4** 用 `@import "tailwindcss"` + `@theme`,无 `tailwind.config.ts`
-- **字体**:阿里巴巴普惠体 3.0 — `globals.css` 里 `@font-face` 自托管,`--font-sans` 与 `--font-heading` 都用它
+- **字体**:阿里巴巴普惠体 3.0 — `src/styles/fonts.css` 由 `pnpm fonts` 生成子集 `@font-face`,`globals.css` 只 `@import "./fonts.css"`;`--font-sans` 与 `--font-heading` 都用它
 - **MDX 管线**用 `unified`(remark-parse → remark-gfm → remark-rehype → rehype-slug → rehype-autolink-headings → rehype-pretty-code → rehype-stringify)
 - **内容图片约定**:文章/碎碎念的图片放 `public/posts/{slug}/`、`public/thoughts/{slug}/`(与 content 目录同 slug 镜像),正文中用绝对路径标准 Markdown 引用,如 `![描述](/thoughts/my-slug/cover.png)`。原因:静态导出 + unified 管线无 `@next/mdx` 图片导入能力,只能走 `public/` 静态资源;按 slug 建子目录便于整目录删除与互不干扰。文件名用 kebab-case 纯 ASCII,避免 URL 编码问题。`.prose img` 已有圆角/边框/自适应样式,无需额外处理
 - **ReactBits 配色必须走 `useAccentColors`/CSS 变量** — 动效组件禁止硬编码 hex;把 accent 族/CSS 变量传进去,主题切换时重渲染
