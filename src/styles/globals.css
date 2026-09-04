@@ -718,11 +718,22 @@ button:focus-visible:not(:focus-visible) {
   height: clamp(420px, calc(78dvh - 56px), 700px);
 }
 .hero-lanyard {
+  position: relative;
   /* --lanyard-height 同时驱动 Lanyard 内部画布高度(默认回退 100vh) */
   --lanyard-height: clamp(420px, calc(78dvh - 56px), 700px);
   height: var(--lanyard-height);
   min-height: 0;
   overflow: hidden;
+}
+/* 3D 加载前的静态卡面占位,避免首屏空白 */
+.hero-lanyard > img {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  max-height: 100%;
+  max-width: 100%;
+  object-fit: contain;
+  pointer-events: none;
 }
 /* 移动端头部为两行(约 94px),余量相应加大 */
 @media (max-width: 639px) {
